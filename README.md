@@ -1,2 +1,2 @@
-# polynomial-interpolation
-A suite of polynomial interpolation methods with a common API
+# Polynomial-Interpolation
+A suite of polynomial interpolation methods.
