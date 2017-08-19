@@ -1,0 +1,9 @@
+Your are in the COMMON directory of the MATLAB/Octave implementation of piecewise polynomial interpolation code
+Here, we have the elementary interface classes which all the interpolants rely on.
+These include the following:
+
+A. CLASSES
+
+    1. InterpolationPoints : Interface class for a set of sample points that will be used for constructing an interpolant
+    2. Interpolant : Class defining the basic interface functions, constructor, and members for a polynomial interpolant
+    3. Piecewise Interpolant : A collection of interpolants
