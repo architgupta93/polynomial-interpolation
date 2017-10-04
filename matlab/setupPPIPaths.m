@@ -43,7 +43,7 @@ function success = setupPPIPaths()
         if (~exist(strcat(current_dir, name_of_this_file)))
             error('PATH setup script not called from its file location. Please CD to the correct location and try again.')
         else
-            path_locations_to_add = {'common', 'utils', 'examples', 'splines', 'cosines'};
+            path_locations_to_add = {'common', 'utils', 'examples', 'splines', 'cosines', 'bli'};
             for loc = 1 : length(path_locations_to_add)
                 addpath(strcat(current_dir, path_locations_to_add{loc}));
             end

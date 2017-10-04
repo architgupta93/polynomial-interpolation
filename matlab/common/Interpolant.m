@@ -1,3 +1,4 @@
+% Class definitions for an interpolant object
 classdef Interpolant < SaveLoad
     properties (SetAccess = protected)
         n_in_dims = 0;
@@ -54,6 +55,7 @@ classdef Interpolant < SaveLoad
                     Obj.i_pts = InterpolationPoints(1, order, bounds, ...
                         i_type_or_x_vals)
                     Obj.wts = wts;
+
                 else
                     error('ERROR: Supplied "type": %s Invalid!\n', ...
                         i_type_or_x_vals);
