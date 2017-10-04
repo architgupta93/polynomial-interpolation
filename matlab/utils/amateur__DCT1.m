@@ -40,19 +40,13 @@ function [x_dct, T] = amateur__DCT1(x, mode)
 
     s_x = size(x);
     if ( length(s_x) > 2 )
-        fprintf(2, ['ERROR: DCT for inputs having more than 2 dimensions', ...
-            ' not supported at the moment\n']);
-        x_dct = 0;
-        T = 0;
-        return;
+        error(['DCT for inputs having more than 2 dimensions', ...
+            ' not supported at the moment']);
     end
 
     if (s_x(1) == 1)
-        fprintf(2, ['ERROR: Either row vector was given or signal length < 2\n', ...
-            'DCT1 not defined!\n']);
-        x_dct = 0;
-        T = 0;
-        return;
+        error(['Either row vector was given or signal length < 2\n', ...
+            'DCT1 not defined!']);
     end
 
     % Baseline code: Corresponds directly to a DFT of the even extension of the

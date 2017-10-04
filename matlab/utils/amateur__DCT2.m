@@ -32,8 +32,8 @@ function [x_dct, T] = amateur__DCT2(x,mode)
 
     s_x = size(x);
     if ( length(s_x) > 2 )
-        fprintf(2, ['ERROR: DCT for inputs having more than 2 dimensions', ...
-            ' not supported at the moment\n']);
+        error(['DCT for inputs having more than 2 dimensions', ...
+            ' not supported at the moment']);
         x_dct = 0;
         T = 0;
         return;
@@ -41,8 +41,8 @@ function [x_dct, T] = amateur__DCT2(x,mode)
 
 
     if (s_x(1) == 1)
-        fprintf(2, ['WARNING: If row vector was given the output is wrong.\n', ...
-            'Otherwise DCT2 is trivial, what is wrong with you!\n']);
+        warning(['If row vector was given the output is wrong.\n', ...
+            'Otherwise DCT2 is trivial, what is wrong with you!']);
         x_dct = x;
         T = 1;
         return;
