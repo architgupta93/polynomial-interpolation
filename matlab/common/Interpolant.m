@@ -163,6 +163,10 @@ classdef Interpolant < SaveLoad
             Obj.order = order;
         end
 
+        function wts = getWts(Obj)
+            wts = Obj.wts;
+        end
+
         function n_pts = getNPts(varargin)
             n_pts = varargin{1}.i_pts.getNPts(varargin{2:end});
         end

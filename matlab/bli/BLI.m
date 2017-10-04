@@ -7,7 +7,7 @@ classdef BLI < Interpolant
 
     methods (Access = public)
         function Obj = BLI(varargin)
-        % function Obj = BLI(f_vals, n_in_dims, bounds, order, i_type_or_x_vals);
+        % function Obj = BLI(f_vals, in_dims, bounds, order, i_type_or_x_vals);
         % Class constructor
             Obj = Obj@Interpolant(varargin{:});
             if ( isempty(varargin) )
