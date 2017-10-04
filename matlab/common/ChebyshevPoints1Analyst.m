@@ -46,10 +46,15 @@ classdef ChebyshevPoints1Analyst < ChebyshevPoints1
             % being used. For zeros of T_(n+1), we should use DCT2. Whereas, for
             % extremas of T_n, we should use DCT1
 
+            % UPDATE: October 4, 2017
+            % Because of the changes in which f_vals are stored inside
+            % interpolants, these are noew row vectors, i.e., the last index
+            % corresponds to the sample index. For this, we need to take a
+            % transpose before passign on for DCT
             if (Obj.roots_or_extremas)  % Using roots
-                coeff_vals = DCT2(f_vals, 'CHEB_SERIES');
+                coeff_vals = amateur__DCT2(f_vals', 'CHEB_SERIES');
             else    % Using extremas
-                coeff_vals = DCT1(f_vals, 'CHEB_SERIES');
+                coeff_vals = amateur__DCT1(f_vals', 'CHEB_SERIES');
             end
         end
 

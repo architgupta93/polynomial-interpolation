@@ -12,9 +12,9 @@ classdef ChebyshevPoints2Analyst < ChebyshevPoints2
         % the Chebyshev Points. TODO: Derive the discrete orthogonality for
         % Chebyshev points of type 2
             if (Obj.roots_or_extremas) % Using roots
-                coeff_vals = DCT1(f_vals, 'CHEB_SERIES');
+                coeff_vals = amateur__DCT1(f_vals, 'CHEB_SERIES');
             else % Use extremas
-                coeff_vals = DCT2(f_vals, 'CHEB_SERIES');
+                coeff_vals = amateur__DCT2(f_vals, 'CHEB_SERIES');
             end
         end
     end
