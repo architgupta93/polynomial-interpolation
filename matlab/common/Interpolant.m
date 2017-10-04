@@ -1,14 +1,59 @@
-% Class definitions for an interpolant object
 classdef Interpolant < SaveLoad
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% classdef Interpolant < SaveLoad
+% This class defines an abstract "Interpolant" object and defines all the
+% access functions that this class of objects should support
+%
+% Abstract class, CANNOT BE INSTANTIATED
+
+% All the interpolants that have been implemented in this codebase inherit this
+% class and have to support the API functions defined here to be instantiable.
+%
+% See also: PiecewiseInterpolant, BLI, Spline, Lagrange, DCTI
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     properties (SetAccess = protected)
-        n_in_dims = 0;
+        % INPUT: As of now, we only allow functions of vectors to be
+        % interpolated, a scalar number, therefore, defines its size
+        in_dims = 0;
+
+        % OUTPUT: This can have an arbitrary dimension, as a result, the
+        % dimensionality needs to be stored as a row vector
         op_dims = 0;
+
+        % REFINENESS: For each interpolant, there is a notion of 'refinement'.
+        % ORDER defines the degree of refineness. Higher the order, larger the
+        % size of the interpolant, and hopefully, better the interpolation. The
+        % exact nature of this depends on the interpolant
         order = [];
+
+        % WEIGHTS: All the interpolants are 'LINEAR', in the sense that,
+        % scaling the underlying function's sample values scales the
+        % interpolant and adding two functions leads to addition of the
+        % interpolant. So, it can be defined in terms of some weights.
         wts = [];
+
+        % SAMPLE POINTS: Points at which the sample values were provided.
         i_pts = InterpolationPoints();
+        
+        % DOMAIN: Domain bounds inside which the interpolant CAN interpolate the values
         bounds = cell(0);
+
+        % COLONS: This is a MATLAB/OCTAVE centric field required for indexing
+        % all the OUTPUTs corresponding to a specific (partial) input value.
+        % For example, if the output has dimesions 2x3x4x5, then for any input
+        % value, these values are indexed using {:, :, :, :}, which is stored
+        % in colons
         colons = cell(0);
+
+        % EXTRAPOLATION SLOPE: Outside the sampled domain, the extrapolation
+        % can be specified either automatically or by the user by specifying
+        % the extrapolation slope
         extrap_slope = [];
+
+        % SAMPLE VALUES: function values that were sampled for constructing the
+        % interpolant. Sometimes, these come in handy for interpolation.
         f_vals = [];
     end
 
