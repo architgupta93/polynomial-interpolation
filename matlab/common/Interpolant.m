@@ -59,6 +59,10 @@ classdef Interpolant < SaveLoad
 
     methods (Static = true, Access = protected)
         function success = isColumnVector(x)
+        % Internal function
+        % Functions here can only take in vector inputs. Specifically, the
+        % input should be a column vector and this function is used to verify
+        % that it is indeed the case.
             n_dims_in_x = length(size(x));
             n_cols_in_x  = size(x, 2);
             if ( (n_cols_in_x == 1) && (n_dims_in_x == 2) )
@@ -71,17 +75,40 @@ classdef Interpolant < SaveLoad
 
     methods (Access = public) % Abstract methods from MATLAB
         function [val, der] = computeWithDer(Obj, x_in, coeffs);
+        % Primary function called for interpolation
+        % Provides the interpolated value and the derivative at the point
             var = [];
             der = [];
         end
         function der = secondDerivative(Obj, x_in);
+        % Provides the second derivative at the query point
             val = [];
             der = [];
         end
     end
 
     methods (Access = public)
-        function Obj = Interpolant(f_vals, n_in_dims, bounds, order, i_type_or_x_vals)
+        function Obj = Interpolant(f_vals, in_dims, bounds, order, i_type_or_x_vals)
+        % Class Constructor
+        %
+        % Only called through child classes. Do not call directly
+        % INPUTS:
+        %   f_vals: Function values at a set of points, or, function_handle
+        %       which can be evaluated.
+        %   in_dims: Dimensionality of the input vector (SCALAR)
+        %   bounds: Domain over which the interpolant is supposed to operate.
+        %       Currently, only rectangular boundaries are supported. This is
+        %       expected to be a CELL ARRAY of size in_dims x 1. Each entry is
+        %       supposed to have 2 values (start, end).
+        %   order: READ order description for class variables. This is
+        %       interpolant specific.
+        %   i_type_or_x_vals: Specify the TYPE of interpolation points or the
+        %       actual value of the sample points, at which it should (or has
+        %       been) be evaluated.
+        %       If f_vals is a set of values, then we additionally need to
+        %       match that the number of values and number of points is correct.
+        %       Some of these features are [TODO].
+
             if (nargin == 0)
                 % DEBUG MESSAGE [TODO]: Remove this later on
                 % fprintf(2, 'Instantiating an EMPTY interpolant of class: %s! \n', class(Obj)); 
@@ -92,10 +119,10 @@ classdef Interpolant < SaveLoad
             if ( isstr(i_type_or_x_vals) )
                 if ( strcmp(i_type_or_x_vals, 'uniform') || ...
                     strcmp(i_type_or_x_vals, 'u') )
-                    Obj.i_pts = UniformPoints(n_in_dims, order, bounds);
+                    Obj.i_pts = UniformPoints(in_dims, order, bounds);
                 elseif ( strcmp(i_type_or_x_vals, 'chebyshev') || ...
                     strcmp(i_type_or_x_vals, 'c') )
-                    Obj.i_pts = ChebyshevPoints1Analyst(n_in_dims, order, bounds);
+                    Obj.i_pts = ChebyshevPoints1Analyst(in_dims, order, bounds);
                 elseif ( iscell(i_type_or_x_vals) )
                     Obj.i_pts = InterpolationPoints(1, order, bounds, ...
                         i_type_or_x_vals)
@@ -111,7 +138,7 @@ classdef Interpolant < SaveLoad
                 return;
             end
 
-            if ( strcmp( class(f_vals), 'function_handle' ) )
+            if ( isa(f_vals, 'function_handle') )
                 %fprintf(2, 'Evaluating f_handle() at given points\n');
                 [Obj.f_vals, Obj.op_dims] = Obj.i_pts.evaluate(f_vals); % Evaluate f at i_pts
             else
@@ -127,7 +154,9 @@ classdef Interpolant < SaveLoad
                 end
             end
 
-            Obj.n_in_dims = n_in_dims;
+            Obj.in_dims = in_dims;
+
+            % COLONS are automatically generated from the estimated dimension of the output
             Obj.colons = cell( size(Obj.op_dims) );
             [Obj.colons{:}] = deal(':');
             Obj.bounds = num2cell(bounds, 1);
@@ -176,13 +205,13 @@ classdef Interpolant < SaveLoad
             end
 
             figure();
-            if Obj.n_in_dims == 1
+            if Obj.in_dims == 1
                 series_coeffs = Obj.i_pts.getSeriesCoeffs( squeeze(Obj.f_vals(sub{:}, :))' );
                 plot( abs(series_coeffs), 'LineWidth', 2.8 );
                 xlabel('Coeff. Index', 'FontSize', 28);
                 ylabel('Coeff. Value', 'FontSize', 28);
                 set(gca, 'YScale', 'log');
-            elseif Obj.n_in_dims == 2 
+            elseif Obj.in_dims == 2 
                 series_coeffs = Obj.i_pts.getSeriesCoeffs( squeeze(Obj.f_vals(sub{:}, :, :))' );
                 mesh( abs(series_coeffs) );
                 set(gca, 'ZScale', 'log');
@@ -213,7 +242,7 @@ classdef Interpolant < SaveLoad
             % fprintf(2, 'Loading Interpolant object... \n');
             % END DEBUG
             load(filename, ...
-                'n_in_dims', ...
+                'in_dims', ...
                 'op_dims', ...
                 'order', ...
                 'wts', ...
@@ -222,7 +251,7 @@ classdef Interpolant < SaveLoad
                 'extrap_slope', ...
                 'f_vals', ...
                 Obj.load_opts{:});
-            Obj.n_in_dims       = n_in_dims;
+            Obj.in_dims         = in_dims;
             Obj.op_dims         = op_dims;
             Obj.order           = order;
             Obj.wts             = wts;
@@ -234,7 +263,7 @@ classdef Interpolant < SaveLoad
 
         function save(Obj, filename, prefix)
             Obj.i_pts.save([filename, '.sp']);
-            n_in_dims       = Obj.n_in_dims;
+            in_dims         = Obj.in_dims;
             op_dims         = Obj.op_dims;         
             order           = Obj.order;
             wts             = Obj.wts;             
@@ -243,7 +272,7 @@ classdef Interpolant < SaveLoad
             extrap_slope    = Obj.extrap_slope;
             f_vals          = Obj.f_vals;
             save(filename, ...
-                'n_in_dims', ...
+                'in_dims', ...
                 'op_dims', ...
                 'order', ...
                 'wts', ...
