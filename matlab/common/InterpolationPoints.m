@@ -171,7 +171,7 @@ classdef InterpolationPoints < SaveLoad
             % Chebyshev points are stored in a descending order.
             pt_index = zeros(1, Obj.n_in_dims);
             for d_i = 1:Obj.n_in_dims
-                p_diff = (pt < Obj.getPtsAt{d_i});
+                p_diff = (pt <= Obj.getPts(d_i));
                 % Since Obj.pts{ ... } are arranged in a descending order, pt - Obj.pts{ ... } should be arranged in an
                 % ascending order. This lets us use MATLAB's builtin function to find it
                pt_index(1, d_i) = find(p_diff, 1); 
