@@ -35,7 +35,7 @@ classdef InterpolationPoints < SaveLoad
             end
 
             if ( size(desired_pts, 1) ~= Obj.n_in_dims )
-                error(['ERROR: %d dimensional input data supplied. ', ...
+                error(['%d dimensional input data supplied. ', ...
                     '%d expected as a cell array. Aborting!\n'], ...
                     size(desired_pts,1), Obj.n_in_dims);
             end
@@ -45,6 +45,9 @@ classdef InterpolationPoints < SaveLoad
                 Obj.n_pts(1, d_i) = size(desired_pts{d_i}, 1);
 
                 % First we squeeze these points into [-1 1]
+                % TODO: While this works very well for Chebyshev polynomials,
+                % which are defined in [-1, 1], it has some issues with DCT
+                % based interpolant and should not be used there
                 Obj.l_bounds(1, d_i) = desired_pts{d_i}(1);
                 Obj.l_bounds(2, d_i) = desired_pts{d_i}(end);
                 Obj.rs_factor(d_i, 1) = abs( Obj.bounds(2, d_i) - Obj.bounds(1, d_i) ) / ...
@@ -171,7 +174,7 @@ classdef InterpolationPoints < SaveLoad
             % Chebyshev points are stored in a descending order.
             pt_index = zeros(1, Obj.n_in_dims);
             for d_i = 1:Obj.n_in_dims
-                p_diff = (pt <= Obj.getPts(d_i));
+                p_diff = (pt >= Obj.getPts(d_i));
                 % Since Obj.pts{ ... } are arranged in a descending order, pt - Obj.pts{ ... } should be arranged in an
                 % ascending order. This lets us use MATLAB's builtin function to find it
                pt_index(1, d_i) = find(p_diff, 1); 

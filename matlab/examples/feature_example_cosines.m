@@ -23,7 +23,7 @@ function outs = feature_example_bli(function_handle)
     disp('Generating arguments for the interpolant.');
     args = defaultInterpolantArgs();
 
-    disp('Instantiating BLI.')
+    disp('Instantiating Cosine interpolant.')
     dct_interpolant = DCTI(function_handle, args{:});
 
     disp('Choosing random test points.')
@@ -50,5 +50,6 @@ end
 % Local functions here which are internal to the script
 function f_handle = pickFunctionHandle();
     disp('Choosing function handle for testing.');
-    f_handle = @(x) sin(2*pi*x);
+    % f_handle = @(x) sin(2*pi*x);
+    f_handle = @(x) exp(-2*pi*(x.^2));
 end
