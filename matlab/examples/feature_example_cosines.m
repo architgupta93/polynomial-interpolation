@@ -23,12 +23,15 @@ function outs = feature_example_bli(function_handle)
     disp('Generating arguments for the interpolant.');
     args = defaultInterpolantArgs();
 
+    % Set the order of the current interpolation is not good enough
+    args{3} = 6;
+
     disp('Instantiating Cosine interpolant.')
     dct_interpolant = DCTI(function_handle, args{:});
 
     disp('Choosing random test points.')
     n_test_pts  = 1000;
-    t_pts       = sort(rand(n_test_pts, 1));
+    t_pts       = sort(rand(n_test_pts, 1) - 0.5);
     t_vals      = function_handle(t_pts);
 
     interpolated_values = zeros(size(t_pts));
@@ -51,5 +54,5 @@ end
 function f_handle = pickFunctionHandle();
     disp('Choosing function handle for testing.');
     % f_handle = @(x) sin(2*pi*x);
-    f_handle = @(x) exp(-2*pi*(x.^2));
+    f_handle = @(x) exp(-2*18*pi*(x.^2) - 1.5*x + 0.3);
 end
