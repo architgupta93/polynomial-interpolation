@@ -6,7 +6,7 @@ classdef BLI2 < Interpolant
 
     methods (Access = public)
         function Obj = BLI2(varargin)
-        % function Obj = BLI2(f_vals, n_in_dims, bounds, order, i_type_or_x_vals) 
+        % function Obj = BLI2(f_vals, in_dims, bounds, order, i_type_or_x_vals) 
             Obj = Obj@Interpolant(varargin{:});
             if ( isempty(varargin) )
                 return;
@@ -30,7 +30,7 @@ classdef BLI2 < Interpolant
         function [val, der] = computeWithDer(Obj, x_in)
             [i_nuvals, d_nuvals] = Obj.nu_pols.computeWithDer(x_in(2));
 
-            der = zeros([Obj.op_dims, Obj.n_in_dims]);
+            der = zeros([Obj.op_dims, Obj.in_dims]);
             [val, der(Obj.colons{:}, 1)] = Obj.BLI_fit.computeWithDer(x_in(1), i_nuvals);
             der(Obj.colons{:}, 2) = Obj.BLI_fit.computeWithDer(x_in(1), d_nuvals);
         end
