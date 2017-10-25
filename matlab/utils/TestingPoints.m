@@ -1,6 +1,6 @@
-classdef TestingArgs < InterpolationPoints
+classdef TestingPoints < InterpolationPoints
     methods (Access = public)
-        function Obj = TestingArgs(n_in_dims, n_pts, bounds, x_vals)
+        function Obj = TestingPoints(n_in_dims, n_pts, bounds, x_vals)
             Obj = Obj@InterpolationPoints(n_in_dims, n_pts, bounds);
 
             if (nargin > 3)

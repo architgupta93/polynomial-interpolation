@@ -57,8 +57,9 @@ function compareIDers(n_tpts_seed, bounds, df_obj, ip_obj, ip_label, varargin)
     ip_labels      = cell(n_interpolants, 1);
 
     % Put the first one in
-    ip_handles{1}  = getDervHandle(ip_handle);
+    ip_handles{1}  = getDervHandle(ip_obj);
     ip_labels{1}   = ip_label;
+    df_handle      = getDervHandle(df_obj);
 
     for ip = 2:n_interpolants
         ip_handles{ip} = getDervHandle(varargin{ip*2-3});
@@ -96,7 +97,7 @@ function compareIDers(n_tpts_seed, bounds, df_obj, ip_obj, ip_label, varargin)
         [x_in, sub] = test_obj.getPtAt(t_i);
         df_evals(colons{:}, :, sub{:}) = df_handle( x_in );
         for ip = 1:n_interpolants
-            (ip_evals{ip})(colons{:}, :, sub{:}) = (ip_handles{ip})( x_in );
+            ip_evals{ip}(colons{:}, :, sub{:}) = ip_handles{ip}( x_in );
         end
     end
 
