@@ -8,7 +8,7 @@
                 return;
             end
 
-            % Since the first entry in vij(;,:,:,...) is indexed by xi, we start by
+            % Since the rightmost entry in vij(;,:,:,...) is indexed by xi, we start by
             % constructing splines with xi as a variable (different fixed xjs)
 
             coeffs1D = zeros([Obj.op_dims 4 Obj.i_pts.getNPts(1)+1 Obj.i_pts.getNPts(2)]);
@@ -31,8 +31,11 @@
             % Spline1D returns size [Obj.op_dims 4 1+Obj.i_pts.getNPts(1) 4 1+Obj.i_pts.getNPts(2)].
             % We need to  swap this to [Obj.op_dims 4 4 1+Obj.i_pts.getNPts(1) 1+Obj.i_pts.getNPts(2)]
             % Where the 2 4s have also been swapped, i.e., from [1 2 3 4], we go to [3 1 2 4]
+            % TODO: We swap the 4s because the reconstruction happens in the opposite order.
             perm_order = [ [1 : g_dims(Obj.op_dims)], [g_dims(Obj.op_dims) + [3 1 2 4]] ];
             Obj.coeffs = zeros([Obj.op_dims 4 4 1+Obj.i_pts.getNPts(1) 1+Obj.i_pts.getNPts(2)]);
+
+            %{ OLD IMPLEMENTATION... I don't see why this is needed to start with
             for iIndex = 1:Obj.i_pts.n_pts(1)+1
                 coeffs_xi_iIndex = coeffs1D(Obj.colons{:},:,iIndex,:);
 
@@ -41,6 +44,11 @@
                 %                                                           i_type_or_x_vals ^^
                 Obj.coeffs(Obj.colons{:},:,:,iIndex,:) = permute(Sij.coeffs, perm_order);
             end
+            %}
+
+            % This one seems to work just fine!
+            Sij = Spline1D(coeffs1D, 1, {Obj.bounds{1, 2}}, Obj.order(1, 2), varargin{end});
+            Obj.coeffs = permute(Sij.coeffs, perm_order);
 
             % Notice that spline_1d implementation already provides the correct
             % coefficients for slopes even for the case of extrapolation. The only
@@ -80,7 +88,7 @@
             djl_3 = djl_1.*djl_2;
                     
 
-            % The coefficients are a OutputSizex4x(xi)x4x(xj) tensor. The 4x4 matrix
+            % The coefficients are a OutputSizex4x4x(xi)x(xj) tensor. The 4x4 matrix
             % essentially provides the 16 coefficients required for computing the
             % function value in the rectangle (or extrapolation region) given by
             % (xi(i), xi(j)) and (xi(i+1),xj(j+1)) 
