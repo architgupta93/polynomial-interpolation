@@ -26,7 +26,7 @@ function outs = feature_example_spline2(function_handle)
     disp('Instantiating 2D Spline.')
     sp_interpolant = Spline2D(function_handle, args{:});
 
-    n_test_pts = 1000;
+    n_test_pts = 100;
     bounds     = {[-1; 1], [-1; 1]};
     compareIObjs(n_test_pts, bounds, function_handle, sp_interpolant);
 end

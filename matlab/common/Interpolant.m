@@ -88,9 +88,8 @@ classdef Interpolant < SaveLoad
     end
 
     methods (Access = public)
-        function Obj = Interpolant(f_vals, in_dims, bounds, order, i_type_or_x_vals)
+        function Obj = Interpolant(f_vals, in_dims, c_bounds, order, i_type_or_x_vals)
         % Class Constructor
-        %
         % Only called through child classes. Do not call directly
         % INPUTS:
         %   f_vals: Function values at a set of points, or, function_handle
@@ -98,8 +97,11 @@ classdef Interpolant < SaveLoad
         %   in_dims: Dimensionality of the input vector (SCALAR)
         %   bounds: Domain over which the interpolant is supposed to operate.
         %       Currently, only rectangular boundaries are supported. This is
-        %       expected to be a CELL ARRAY of size in_dims x 1. Each entry is
+        %       expected to be a CELL ARRAY of size 1 x in_dims. Each entry is
         %       supposed to have 2 values (start, end).
+        %       - A cell array is used so that the same API can be generalized to
+        %       piecewise interpolants, where each entry can have 2 or more
+        %       values
         %   order: READ order description for class variables. This is
         %       interpolant specific.
         %   i_type_or_x_vals: Specify the TYPE of interpolation points or the
@@ -114,6 +116,9 @@ classdef Interpolant < SaveLoad
                 % fprintf(2, 'Instantiating an EMPTY interpolant of class: %s! \n', class(Obj)); 
                 return;
             end
+
+            % Convert the cell array of bounds into a matrix
+            bounds = cell2mat(c_bounds);
 
             % Checking if interpolation type (i_type) has been provided
             if ( isstr(i_type_or_x_vals) )

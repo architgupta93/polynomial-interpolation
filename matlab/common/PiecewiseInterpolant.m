@@ -116,7 +116,7 @@ classdef PiecewiseInterpolant < SaveLoad
                 %                               Accounting for   n_pieces
                 %                                the input(s)       (1)
             else
-                error('ERROR: Invalid/Unsupported data type for input function\n');
+                error('Invalid/Unsupported data type for input function\n');
             end
             Obj.colons = cell(size(Obj.op_dims));
             [Obj.colons{:}] = deal(':');
@@ -134,21 +134,20 @@ classdef PiecewiseInterpolant < SaveLoad
 
             if ( size(Obj.n_pieces,2) ~= n_in_dims )
                 fprintf(2, 'NOTE: Expect n_pieces to be a row vector\n');
-                error(['ERROR: Mismatch in supplied n_pieces ', ...
-                    '(per dimensions) and n_in_dims\n']);
+                error('Mismatch in supplied n_pieces (per dimensions) and n_in_dims');
             end
 
             if (nargin > 2)
                 % Checking that the supplied bounds match the intended number of
                 % pieces for interpolation using piecewise Chebyshev series
                 if ( (size(bounds, 2) ~= Obj.n_in_dims) )
-                    error(['ERROR: Mismatch in supplied bounds and ', ...
+                    error(['Mismatch in supplied bounds and ', ...
                         'n_in_dims. Expecting 1 x n_in_dims cell array\n']);
                     return;
                 else
                     for d_i = 1:Obj.n_in_dims
                         if ( size(bounds{d_i}) ~= (Obj.n_pieces(d_i) + 1) )
-                            fprintf(2, ['ERROR: Mismatch in supplied bounds and ', ...
+                            error['Mismatch in supplied bounds and ', ...
                                 'n_pieces at dimension %s!\n'], d_i);
                             return;
                         end
@@ -157,7 +156,7 @@ classdef PiecewiseInterpolant < SaveLoad
             else
                 % We will take a n_in_dims dimensional cube (x[-1, 1])^n_in_dims and
                 % divide it into n_pieces equal pieces "TODO"
-                fprintf(2, ['ERROR: Automatic division not supported ', ... 
+                error['Automatic division not supported ', ... 
                     'at the moment\n']);
             end
 

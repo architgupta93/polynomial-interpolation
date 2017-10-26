@@ -8,14 +8,12 @@ classdef SplineInterpolant < Interpolant
 
     methods (Access = public)
         function Obj = SplineInterpolant(varargin)
-            % HACK HACK HACK: We use PiecewiseBLI at the same level as Spline2D. Now spline, being an interpolant, takes
-            % in a matrix as bounds (as it can only be one piece at the moment. However, since it is used in the same
-            % API as PiecewiseBLI, a cell array is passed in at this level.
-            if ( length(varargin) > 0 ) % Then everything HAS to be present
-                if ( isa(varargin{3}, 'cell') )
-                    varargin{3} = cell2mat(varargin{3});
-                end
-            end
+        % function Obj = SplineInterpolant(f_vals, in_dims, bounds, order, i_type_or_x_vals)
+            % HACK HACK HACK: We use PiecewiseBLI at the same level as
+            % Spline2D. Now spline, being an interpolant, takes in a matrix as
+            % bounds (as it can only be one piece at the moment. However, since
+            % it is used in the same API as PiecewiseBLI, a cell array is
+            % passed in at this level.
             Obj = Obj@Interpolant(varargin{:});
         end
 

@@ -13,7 +13,7 @@
 
             coeffs1D = zeros([Obj.op_dims 4 Obj.i_pts.getNPts(1)+1 Obj.i_pts.getNPts(2)]);
             for jIndex = 1:Obj.i_pts.getNPts(2)
-                Sj = Spline1D(Obj.f_vals(Obj.colons{:}, :, jIndex), 1, Obj.bounds{1, 1}, Obj.order(1, 1), varargin{end});
+                Sj = Spline1D(Obj.f_vals(Obj.colons{:}, :, jIndex), 1, {Obj.bounds{1, 1}}, Obj.order(1, 1), varargin{end});
                 %                                                                           i_type_or_x_vals ^^
                 % local spline object
                 coeffs1D(Obj.colons{:},:,:,jIndex) = Sj.coeffs;
@@ -37,7 +37,7 @@
                 coeffs_xi_iIndex = coeffs1D(Obj.colons{:},:,iIndex,:);
 
                 % All the coefficients corresponding to xi
-                Sij = Spline1D(coeffs_xi_iIndex, 1,  Obj.bounds{1, 2}, Obj.order(1, 2), varargin{end});
+                Sij = Spline1D(coeffs_xi_iIndex, 1,  {Obj.bounds{1, 2}}, Obj.order(1, 2), varargin{end});
                 %                                                           i_type_or_x_vals ^^
                 Obj.coeffs(Obj.colons{:},:,:,iIndex,:) = permute(Sij.coeffs, perm_order);
             end

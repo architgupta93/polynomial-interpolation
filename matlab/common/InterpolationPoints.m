@@ -73,7 +73,7 @@ classdef InterpolationPoints < SaveLoad
 
             % Checking if the supplied n_pts matches the number of data dims
             if ( n_in_dims ~= size(order, 2) )
-                error('ERROR: Mismatch in n_in_dims and data dimensions.\n');
+                error('Mismatch in n_in_dims and data dimensions.\n');
                 return;
             end
             obj.n_in_dims = n_in_dims;
@@ -84,8 +84,8 @@ classdef InterpolationPoints < SaveLoad
                             % sized array
                 bound_dim_check = size(bounds, 2);
                 if (bound_dim_check ~= n_in_dims)
-                    fprintf(2, ['ERROR: Mismatch in bounds and data', ...
-                        'dimensions.\n Ensure bounds = 2 x n_in_dims\n'])
+                    error(['Mismatch in bounds and data ', ...
+                        'dimensions. Ensure bounds = 2 x n_in_dims'])
                     return;
                 end
 
@@ -96,7 +96,7 @@ classdef InterpolationPoints < SaveLoad
                         if ( issorted(d_pts) )
                             obj.pts = x_vals;
                         else
-                            fprintf(2, 'ERROR: Interpolation points not sorted\n');
+                            error('Interpolation points not sorted');
                             return;
                         end
                     end

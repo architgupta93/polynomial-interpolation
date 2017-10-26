@@ -25,7 +25,8 @@ function args = defaultInterpolantArguments(n_dims)
     args{1} = n_dims; % Number of input dimensions. Input can only be a VECTOR
 
     % The bounds for each dimension
-    args{2} = repmat([-1; 1], [1 n_dims]);
+    args{2} = cell(1, n_dims);
+    [args{2}{:}] = deal([-1; 1]);
 
     % Order of the interpolant
     args{3} = 4 * ones(1, n_dims);
