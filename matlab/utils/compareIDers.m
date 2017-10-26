@@ -86,7 +86,7 @@ function compareIDers(n_tpts_seed, bounds, df_obj, ip_obj, ip_label, varargin)
 
     ip_evals     = cell(n_interpolants, 1);
     ip_evals{:}  = deal(zeros([n_op_dims n_in_dims n_test_pts]));
-    df_evals      = zeros([n_op_dims n_in_dims n_test_pts]);
+    df_evals     = zeros([n_op_dims n_in_dims n_test_pts]);
 
     colons       = cell( size(n_op_dims) );
     [colons{:}]  = deal(':');
@@ -108,7 +108,7 @@ function compareIDers(n_tpts_seed, bounds, df_obj, ip_obj, ip_label, varargin)
     ip_err = zeros(n_interpolants, 1);
 
     for ip = 1:n_interpolants
-        ip_err(ip) = find_error(ip_evals{ip}-f_vals, f_vals, error_args.eps(), error_args.errorMode());
+        ip_err(ip) = find_error(ip_evals{ip}-df_evals, df_evals, error_args.eps(), error_args.errorMode());
         fprintf(2, '%s Error: %.10f\n', ip_labels{ip}, ip_err(ip));
     end
 
@@ -117,8 +117,6 @@ function compareIDers(n_tpts_seed, bounds, df_obj, ip_obj, ip_label, varargin)
         s_pts{d_i} = test_obj.getPts(d_i);
     end
 
-    f_dx = figure(); hold on;
-
     index_to_plot = cell( length(n_op_dims), 1 );
     for p_i = 1 : length( n_op_dims)
         %index_to_plot{p_i} = randi([1 n_op_dims(p_i)]);
@@ -126,15 +124,15 @@ function compareIDers(n_tpts_seed, bounds, df_obj, ip_obj, ip_label, varargin)
     end
 
     if ( n_in_dims == 1)
-        fig_handle = plotComparison(df_evals, ip_evals{:}, ip_labels{:});
+        fig_handle = plotComparison({}, s_pts, df_evals, ip_evals{:}, 'Baseline', ip_labels{:});
     elseif ( n_in_dims == 2 )
         fprintf(2, 'Plotting dim: %d, df_dx\n', cell2mat(index_to_plot));
         ip_d_dim1 = cell(n_interpolants, 1);
-        fig_handle_dim1 = plotComparison(df_evals(index_to_plot{:}, 1, :, :), ...
-            ip_d_dim2{:}, ip_labels);
+        fig_handle_dim1 = plotComparison({}, s_pts, df_evals(index_to_plot{:}, 1, :, :), ...
+            ip_d_dim2{:}, 'Baseline', ip_labels);
 
-        fig_handle_dim2 = plotComparison(df_evals(index_to_plot{:}, 2, :, :), ...
-            ip_d_dim2{:}, ip_labels);
+        fig_handle_dim2 = plotComparison({}, s_pts, df_evals(index_to_plot{:}, 2, :, :), ...
+            ip_d_dim2{:}, 'Baseline', ip_labels);
     else
         fprintf(2, 'Too many dimensions for plotting\n');
     end

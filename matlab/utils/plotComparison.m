@@ -53,6 +53,8 @@ function success = plotComparison(axis_labels, ref_pts_or_individual_refs, varar
 %   this can be done)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+    success = 0; % Look at the pessimism
+
     if (isempty(ref_pts_or_individual_refs))
         % Usage 2
         error('Usage 2 in the documentation has not been implemented yet!')
@@ -67,15 +69,19 @@ function success = plotComparison(axis_labels, ref_pts_or_individual_refs, varar
         error('Got %d arguments when expecting the same number of data entries as labels.', length(varargin));
     end
 
-    n_overlays = length(varargin)/2;
+    n_overlays  = length(varargin)/2;
     % Try to find the nature of plotting to be used...
     % PLOT for 1D,
     % SURF/MESH for 2D
-    data_vals   = {varargin{1:n_overlays}};
     data_labels = {varargin{n_overlays+1:end}};
+    data_vals   = cell(n_overlays, 1);
+
+    for ol = 1:n_overlays
+        data_vals{ol} = squeeze(varargin{ol});
+    end
 
     figure(); hold on;
-    if (g_dims(varargin{1}) == 1)
+    if (g_dims(data_vals{1}) == 1)
         % Just change these and the rest should work out
         % For example:
         %   plot_fun  = @scatter;
@@ -91,7 +97,7 @@ function success = plotComparison(axis_labels, ref_pts_or_individual_refs, varar
         % Loop thorugh the data and plot
         % TODO: Maybe put a try catch block around this.
         for ol = 1:n_overlays
-            plot_fun(ref_pts, data_vals{ol}, plot_args{:});
+            plot_fun(ref_pts{1}, data_vals{ol}, plot_args{:});
         end
     elseif (g_dims(varargin{2} == 2))
         plot_fun  = @surf;
@@ -117,4 +123,5 @@ function success = plotComparison(axis_labels, ref_pts_or_individual_refs, varar
 
     % TODO: What about higher dimensions? For ever 1/2, can we let the user
     % supply arguments and handles for plotting
+    success = 1;
 end
