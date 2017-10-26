@@ -135,14 +135,14 @@ classdef InterpolationPoints < SaveLoad
 
         function [f_vals, op_dims] = evaluate(Obj, f_handle)
             if ( ~strcmp(class(f_handle), 'function_handle') )
-                fprintf(2, ['ERROR: Evaluation requested but supplied object ', ...
-                    'is not a function handle\n']);
+                error('Evaluation requested but supplied object ', ...
+                    'is not a function handle');
                 f_vals = [];
                 return;
             end
 
             % Finding out the number of output dimensions for the function described by f_hanlde
-                t_op = f_handle( zeros(Obj.n_in_dims, 1) );
+            t_op = f_handle( zeros(Obj.n_in_dims, 1) );
             op_dims = size(t_op, 1);  % NOTE: Expect vector functions to return a column vector as an output.
                                             % Returning a row vector would cause it to be mistaken for a scalar function
                                             % and will definitiely lead to runtime errors

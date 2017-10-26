@@ -1,8 +1,7 @@
 classdef Spline1D < SplineInterpolant
     methods (Access = public)
         function Obj = Spline1D(varargin)
-        % function Obj = Spline1D(f_vals, n_in_dims, bounds, order, i_type_or_x_vals)
-        % Class Constructor
+        % function Obj = Spline1D(f_vals, n_in_dims, bounds, order, i_type_or_x_vals)        % Class Constructor
             Obj = Obj@SplineInterpolant(varargin{:});
             if ( isempty(varargin) )
                 return;
@@ -145,15 +144,16 @@ classdef Spline1D < SplineInterpolant
             dl_3 = dl_1.*dl_2;
             
             % Calculate the cubic function and the derivatives
-            val =   dl_3*Obj.coeffs(Obj.colons{:},1,index) + ...
-                    dl_2*Obj.coeffs(Obj.colons{:},2,index) + ...
-                    dl_1*Obj.coeffs(Obj.colons{:},3,index) + ...
-                         Obj.coeffs(Obj.colons{:},4,index);
+            % In MATLAB, all singleton dimensions to the right are ignored, so
+            % in the expression below, the dimension corresponding to 'index'
+            % is ignored.
+            n_extra_dims = length(Obj.colons);
+            val = sum(shiftdim([dl_3, dl_2, dl_1, 1], 1-n_extra_dims) .* ...
+                    Obj.coeffs(Obj.colons{:},:,index), 1+n_extra_dims);
+
             if (nargout > 1)
-                der =   dx_out * ( ...
-                        3*dl_2*Obj.coeffs(Obj.colons{:},1,index) + ...
-                        2*dl_1*Obj.coeffs(Obj.colons{:},2,index) + ...
-                               Obj.coeffs(Obj.colons{:},3,index));
+                der = dx_out * sum(shiftdim([3*dl_2, 2*dl_1, 1], 1-n_extra_dims) .* ...
+                      Obj.coeffs(Obj.colons{:},1:3,index), 1+n_extra_dims);
             end
         end
 
