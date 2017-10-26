@@ -17,13 +17,13 @@ classdef BLI2 < Interpolant
             g_nu = zeros(Obj.op_dims, Obj.i_pts.n_pts(1), Obj.i_pts.n_pts(2));
             
             for p_i = 1:Obj.i_pts.n_pts(2)
-                BLI_fit = BLI( squeeze(Obj.f_vals(:, :, p_i)), 1, Obj.bounds{1}, Obj.order(1, 1), varargin{end});
+                BLI_fit = BLI( squeeze(Obj.f_vals(:, :, p_i)), 1, {Obj.bounds{1}}, Obj.order(1, 1), varargin{end});
                 %                                                           This is i_type_or_x_vals ^^
                 g_nu(:, :, p_i) = BLI_fit.nu_vals;
             end
 
             Obj.BLI_fit = BLI_fit;
-            Obj.nu_pols = BLI(g_nu, 1, Obj.bounds{2}, Obj.order(1, 2), varargin{end});
+            Obj.nu_pols = BLI(g_nu, 1, {Obj.bounds{2}}, Obj.order(1, 2), varargin{end});
             %                                       This is i_type_or_x_vals ^^
         end
 

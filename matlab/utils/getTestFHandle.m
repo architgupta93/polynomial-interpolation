@@ -19,6 +19,8 @@ function [f_handle, df_handle, bkpts] = getTestFHandle(n_in_dims, n_op_dims, f_s
             % These functions include 'g', 'o', 'r' ,'p'
             i_seed = randi([3, N_FUNS], 1, 1);
             f_seed = SEEDS(i_seed);
+        else
+            % TODO: Check that f_seed is actually in the available seeds.
         end 
     end
 
@@ -31,21 +33,22 @@ function [f_handle, df_handle, bkpts] = getTestFHandle(n_in_dims, n_op_dims, f_s
 
     switch (f_seed)
         case 'c'
-            f_instance = f_continuous(n_in_dims, n_op_dims, [w_vec c_vec])
+            f_instance = f_continuous(n_in_dims, n_op_dims, [w_vec c_vec]);
         case 'd'
-            f_instance = f_discontinuous(n_in_dims, n_op_dims, [w_vec(:, 1:min(2, n_in_dims)) c_vec])
+            f_instance = f_discontinuous(n_in_dims, n_op_dims, [w_vec(:, 1:min(2, n_in_dims)) c_vec]);
         case 'g'
-            f_instance = f_gaussian(n_in_dims, n_op_dims, [w_vec c_vec])
+            f_instance = f_gaussian(n_in_dims, n_op_dims, [w_vec c_vec]);
         case 'o'
-            f_instance = f_oscillatory(n_in_dims, n_op_dims, [w_vec(:, 1) c_vec])
+            f_instance = f_oscillatory(n_in_dims, n_op_dims, [w_vec(:, 1) c_vec]);
         case 'r'
-            f_instance = f_product_peak(n_in_dims, n_op_dims, [w_vec c_vec])
+            f_instance = f_product_peak(n_in_dims, n_op_dims, [w_vec c_vec]);
         case 'p'
-            f_instance = f_corner_peak(n_in_dims, n_op_dims, c_vec)
+            f_instance = f_corner_peak(n_in_dims, n_op_dims, c_vec);
         otherwise
-            f_instance = f_gaussian(n_in_dims, n_op_dims, [w_vec c_vec])
+            f_instance = f_gaussian(n_in_dims, n_op_dims, [w_vec c_vec]);
     end
 
+    % TODO: Print the information about the selected function (or atleast return it)
     bkpts = f_instance.getBreakpoints();
     f_handle = @(x_in) f_instance.evaluate(x_in);
     df_handle = @(x_in) f_instance.diff(x_in);
