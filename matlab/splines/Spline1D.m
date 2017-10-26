@@ -147,13 +147,14 @@ classdef Spline1D < SplineInterpolant
             % In MATLAB, all singleton dimensions to the right are ignored, so
             % in the expression below, the dimension corresponding to 'index'
             % is ignored.
-            n_extra_dims = length(Obj.colons);
-            val = sum(shiftdim([dl_3, dl_2, dl_1, 1], 1-n_extra_dims) .* ...
-                    Obj.coeffs(Obj.colons{:},:,index), 1+n_extra_dims);
+            ext_dims = length(Obj.colons);
+            pj_vals  = shiftdim([dl_3, dl_2, dl_1, 1], 1-ext_dims);
+            val      = sum(pj_vals .* ...
+                       Obj.coeffs(Obj.colons{:},:,index), 1+ext_dims);
 
             if (nargout > 1)
-                der = dx_out * sum(shiftdim([3*dl_2, 2*dl_1, 1], 1-n_extra_dims) .* ...
-                      Obj.coeffs(Obj.colons{:},1:3,index), 1+n_extra_dims);
+                der  = dx_out * sum(pj_vals .* ...
+                      Obj.coeffs(Obj.colons{:},1:3,index), 1+ext_dims);
             end
         end
 
