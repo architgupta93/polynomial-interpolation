@@ -73,7 +73,7 @@ classdef InterpolationPoints < SaveLoad
 
             % Checking if the supplied n_pts matches the number of data dims
             if ( n_in_dims ~= size(order, 2) )
-                error('Mismatch in n_in_dims and data dimensions.\n');
+                error('Mismatch in n_in_dims and data dimensions.');
                 return;
             end
             obj.n_in_dims = n_in_dims;
