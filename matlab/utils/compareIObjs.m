@@ -59,8 +59,9 @@ function [estimation_error, speedup] = compareIObjs(n_tpts_seed, bounds, ...
     ip_labels      = cell(n_interpolants, 1);
 
     % Put the first one in
-    ip_handles{1}  = getDervHandle(ip_handle);
+    ip_handles{1}  = getDervHandle(ip_obj);
     ip_labels{1}   = ip_label;
+    f_handle       = getEvalHandle(f_obj);
 
     for ip = 2:n_interpolants
         ip_handles{ip} = getDervHandle(varargin{ip*2-3});
@@ -68,7 +69,7 @@ function [estimation_error, speedup] = compareIObjs(n_tpts_seed, bounds, ...
     end
 
     n_in_dims = ip_obj.in_dims;
-    n_op_dims = size(df_handle(zeros(n_in_dims, 1)), 1);
+    n_op_dims = size(f_handle(zeros(n_in_dims, 1)), 1);
 
     % [TODO]: There is a bug in the code when we are asking for just 1 sample
     % points. Set n_test_pts = [1, 1] and the only point that you get is [NaN,
@@ -104,7 +105,7 @@ function [estimation_error, speedup] = compareIObjs(n_tpts_seed, bounds, ...
         f_vals(:, sub{t_i}{:})  = f_handle( x_in{t_i} );
         %Another way (somewhat more stressful) of looking at the timing information
         %f_anonymous             = @() f_handle(x_in);
-        %f_eval_times(sub{:}, 1) = timeit(f_anonymous);
+        %f_eval_trials(sub{:}, 1) = timeit(f_anonymous);
     end
     f_eval_time = toc;
     fprintf(2, 'Function Evaluation time: %0.4f\n', f_eval_time);
@@ -116,18 +117,19 @@ function [estimation_error, speedup] = compareIObjs(n_tpts_seed, bounds, ...
     ylabel('Time (in s)');
     grid on;
     set(gca, 'FontSize', 28);
-    fprintf(2, 'Function Evaluation time: %0.8f\n', mean(reshape(f_eval_times, [], 1)));
+    fprintf(2, 'Function Evaluation time: %0.8f\n', mean(reshape(f_eval_trials, [], 1)));
     %}
     
+    ip_eval_times = zeros(n_interpolants, 1);
     for ip = 1:n_interpolants
         tic;
         for t_i = 1:n_test_cases
-            (ip_vals{ip}0(:, sub{t_i}{:}) = (ip_handle{ip})( x_in{t_i} );
+            ip_vals{ip}(:, sub{t_i}{:}) = ip_handles{ip}( x_in{t_i} );
             %c_anonymous               = @()  c_handle(x_in);
-            %bli_eval_times(sub{:}, 1) = timeit(c_anonymous);
+            %ip_eval_trials(sub{:}, 1) = timeit(c_anonymous);
         end
-        ip_eval_time = toc;
-        fprintf(2, '%s Evaluation time: %0.4f\n', ip_labels{ip}, bli_eval_time);
+        ip_eval_times(ip) = toc;
+        fprintf(2, '%s Evaluation time: %0.4f\n', ip_labels{ip}, ip_eval_times(ip));
 
         %{
         figure, plot(reshape(bli_eval_times, [], 1), 'LineWidth', 2.0);
@@ -136,20 +138,21 @@ function [estimation_error, speedup] = compareIObjs(n_tpts_seed, bounds, ...
         ylabel('Time (in s)');
         grid on;
         set(gca, 'FontSize', 28);
-        fprintf(2, '%s Evaluation time: %0.8f\n', mean(reshape(bli_eval_times, [], 1)));
+        fprintf(2, '%s Evaluation time: %0.8f\n', mean(reshape(ip_eval_trials, [], 1)));
         %}
     end
 
     % Error calculation
+    est_err    = zeros(n_interpolants, 1);
     error_args = ErrorArgs();
+
     error_args.setDefaults();
     error_args.setMode('MAX_{REL}');
     error_args.setEps(1e-6);
-    ip_err = zeros(n_interpolants, 1);
 
     for ip = 1:n_interpolants
-        ip_err(ip) = find_error(ip_vals{ip}-f_vals, f_vals, error_args.eps(), error_args.errorMode());
-        fprintf(2, '%s Error: %.10f\n', ip_labels{ip}, ip_err(ip);
+        est_err(ip) = find_error(ip_vals{ip}-f_vals, f_vals, error_args.eps(), error_args.errorMode());
+        fprintf(2, '%s Error: %.10f\n', ip_labels{ip}, est_err(ip));
     end
 
     s_pts = cell(n_in_dims, 1);
@@ -157,19 +160,19 @@ function [estimation_error, speedup] = compareIObjs(n_tpts_seed, bounds, ...
         s_pts{d_i} = test_obj.getPts(d_i);
     end
 
-    estimation_error = struct();
-    speedup = struct();
-    estimation_error.BLI = c_err;
-    speedup.BLI = f_eval_time / bli_eval_time;
-    if (do_splines)
-        estimation_error.SPLINE = s_err;
-        speedup.SPLINE = f_eval_time / spline_eval_time;
-    end
+    speedup = f_eval_time ./ ip_eval_times;
 
     if (nargout > 0)
         return;
     end
 
     % TODO: Plotting
-
+    if ( n_in_dims == 1)
+        fig_handle = plotComparison({}, s_pts, f_vals, ip_vals{:}, 'Baseline', ip_labels{:});
+    elseif ( n_in_dims == 2 )
+        fig_handle = plotComparison({}, s_pts, f_vals, ip_vals{:}, 'Baseline', ip_labels{:});
+    else
+        fprintf(2, 'Too many dimensions for plotting\n');
+    end
+    
 end
