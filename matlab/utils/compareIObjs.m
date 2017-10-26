@@ -59,12 +59,12 @@ function [estimation_error, speedup] = compareIObjs(n_tpts_seed, bounds, ...
     ip_labels      = cell(n_interpolants, 1);
 
     % Put the first one in
-    ip_handles{1}  = getDervHandle(ip_obj);
+    ip_handles{1}  = getEvalHandle(ip_obj);
     ip_labels{1}   = ip_label;
     f_handle       = getEvalHandle(f_obj);
 
     for ip = 2:n_interpolants
-        ip_handles{ip} = getDervHandle(varargin{ip*2-3});
+        ip_handles{ip} = getEvalHandle(varargin{ip*2-3});
         ip_labels{ip}  = varargin{ip*2 - 2};
     end
 

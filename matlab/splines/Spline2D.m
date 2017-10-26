@@ -1,7 +1,7 @@
  classdef Spline2D < SplineInterpolant
     methods (Access = public)
         function Obj = Spline2D(varargin)
-        % function Obj = Spline2D(f_vals, n_in_dims, bounds, order, i_type_or_x_vals)
+        % function Obj = Spline2D(f_vals, in_dims, bounds, order, i_type_or_x_vals)
         % Class Constructor
             Obj = Obj@SplineInterpolant(varargin{:});
             if ( isempty(varargin) )
@@ -111,7 +111,7 @@
                     cubicCoeffs0;
 
             if (nargout > 1)
-                der = zeros([Obj.op_dims Obj.n_in_dims]);
+                der = zeros([Obj.op_dims Obj.in_dims]);
                 der(Obj.colons{:}, 1) = dx_out(1) * ( ...
                                         3*cubicCoeffs3*dil_2 + ...
                                         2*cubicCoeffs2*dil_1 + ...
