@@ -31,14 +31,22 @@ function success = plotComparison(axis_labels, ref_pts_or_individual_refs, varar
 %       ts = linspace(0, 1, 100);
 %       xs = sin(2*pi*ts);
 %       ys = cos(2*pi*ts);
-%       plotComparison({'time (s)', 'v(t)'}, ts, xs, ys, 'x', 'y')
+%       plotComparison({'time (s)', 'v(t)'}, ts, xs, ys, 'x', 'y');
+%
+%       Multi-Variate...
+%       xs       = linspace(0, 1, 99);
+%       ys       = linspace(0, 1, 101);
+%       [YS, XS] = meshgrid(ys, xs);
+%       f        = sin(2*pi*XS) + cos(2*pi*YS);
+%       g        = cos(2*pi*XS) - sin(2*pi*YS);
+%       plotComparison({'x', 'y', 'v(x,y)'}, {xs, ys}, f, g, 'f', 'g');
 %
 %   Example USAGE 02:
 %       xt = linspace(0, 1, 100);
 %       xs = sin(2*pi*x);
 %       yt = linspace(0, 2, 101);
 %       ys = cos(2*pi*x);
-%       plotComparison({'time (s)', 'v(t)'}, [], xt, yt, xs, ys, 'x', 'y')
+%       plotComparison({'time (s)', 'v(t)'}, [], xt, yt, xs, ys, 'x', 'y');
 %
 %   TODO: Add the functionality to treat the first data set as a baseline and
 %   then interpolate the rest at the corresponding values (maybe, not sure how
@@ -63,6 +71,8 @@ function success = plotComparison(axis_labels, ref_pts_or_individual_refs, varar
     % Try to find the nature of plotting to be used...
     % PLOT for 1D,
     % SURF/MESH for 2D
+    data_vals   = {varargin{1:n_overlays}};
+    data_labels = {varargin{n_overlays+1:end}};
 
     figure(); hold on;
     if (g_dims(varargin{1}) == 1)
@@ -81,19 +91,24 @@ function success = plotComparison(axis_labels, ref_pts_or_individual_refs, varar
         % Loop thorugh the data and plot
         % TODO: Maybe put a try catch block around this.
         for ol = 1:n_overlays
-            plot_fun(ref_pts, varargin{ol}, plot_args{:});
+            plot_fun(ref_pts, data_vals{ol}, plot_args{:});
         end
     elseif (g_dims(varargin{2} == 2))
+        plot_fun  = @surf;
+        plot_args = {};
 
         if (isempty(axis_labels))
             axis_labels = {'pt1', 'pt2', 'v(pt1, pt2)'};
         end
 
-        error('Two dimensions not implemented yet!');
+        for ol = 1:n_overlays
+            % TODO: The requirement of a transposing the data for a surf plot
+            surf(ref_pts{1}, ref_pts{2}, data_vals{ol}');
+        end
     else
         error('Too many data dimensions to plot!');
     end
-    legend(varargin{n_overlays+1:end});
+    legend(data_labels{:});
     set(gca, 'FontSize', 28);
     xlabel(axis_labels{1});
     ylabel(axis_labels{2});
