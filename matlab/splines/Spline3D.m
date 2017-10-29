@@ -59,8 +59,53 @@ classdef Spline3D < SplineInterpolant
         end
 
         function [val, der] = computeWithDer(Obj, x_in, ~)
-            val = 0;
-            der = 0;
+            % Recenter and scale the values for the set scaling values
+            [x_in, dx_out] = Obj.i_pts.rescaleShiftInput(x_in);
+
+            % Find the bin in which the evaluation point is located
+            i = findInSorted(x_in(1), [Inf; Obj.i_pts.pts{1}; -Inf]);
+            j = findInSorted(x_in(2), [Inf; Obj.i_pts.pts{2}; -Inf]);
+            k = findInSorted(x_in(3), [Inf; Obj.i_pts.pts{3}; -Inf]);
+
+            % Obtain the local coordinates in this bin
+            dil_1 = x_in(1) - Obj.i_pts.pts{1}(max(i-1,1));
+            djl_1 = x_in(2) - Obj.i_pts.pts{2}(max(j-1,1));
+            dkl_1 = x_in(3) - Obj.i_pts.pts{3}(max(k-1,1));
+
+            % Generate the simple polynomial terms
+            dil_2 = dil_1.*dil_1;
+            dil_3 = dil_1.*dil_2;
+
+            djl_2 = djl_1.*djl_1;
+            djl_3 = djl_1.*djl_2;
+
+            dkl_2 = dkl_1.*dkl_1;
+            dkl_3 = dkl_1.*dkl_2;
+
+            ext_dims = length(Obj.colons);
+            % K needs to be shifted by (ext_dims + 2), and of this, the row
+            % vector initialization contributes one dimension
+            pk_vals  = shiftdim([djl_3, djl_2, djl_1, 1], -1-ext_dims);
+
+            % The next dimension (J) needs to be shifted by 1 less value, i.e.,
+            % ext_dims. To account for the row vector initialization, we substract 1
+            pj_vals  = shiftdim([dil_3, dil_2, dil_1, 1], -ext_dims);
+
+            % And similarly, for I, we get
+            pi_vals  = shiftdim([dkl_3, dkl_2, dkl_1, 1], 1-ext_dims);
+
+            pijk_mat = pk_vals .* pj_vals .* pi_vals;
+            val      =  sum( ...
+                            sum( ...
+                                sum( ...
+                                    pijk_mat .* Obj.coeffs(Obj.colons{:},:,:,:,i,j,k), ...
+                                1+ext_dims), ...
+                            2+ext_dims), ...
+                        3+ext_dims);
+
+            if (nargout > 1)
+                der = 0;
+            end
         end
         
     % end methods
