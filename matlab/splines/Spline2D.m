@@ -101,15 +101,15 @@
             % ext_dims. To account for the row vector initialization, we substract 1
             pi_vals  = shiftdim([dil_3, dil_2, dil_1, 1], 1-ext_dims);
 
-            cubicCoeffs3 = pj_vals .* Obj.coeffs(Obj.colons{:},1,:,i,j);
-            cubicCoeffs2 = pj_vals .* Obj.coeffs(Obj.colons{:},2,:,i,j);
-            cubicCoeffs1 = pj_vals .* Obj.coeffs(Obj.colons{:},3,:,i,j);
-            cubicCoeffs0 = pj_vals .* Obj.coeffs(Obj.colons{:},4,:,i,j);
+            cubicCoeffs3 = sum(pj_vals .* Obj.coeffs(Obj.colons{:},1,:,i,j), 2+ext_dims);
+            cubicCoeffs2 = sum(pj_vals .* Obj.coeffs(Obj.colons{:},2,:,i,j), 2+ext_dims);
+            cubicCoeffs1 = sum(pj_vals .* Obj.coeffs(Obj.colons{:},3,:,i,j), 2+ext_dims);
+            cubicCoeffs0 = sum(pj_vals .* Obj.coeffs(Obj.colons{:},4,:,i,j), 2+ext_dims);
 
-            val = sum(cubicCoeffs3, 2+ext_dims)*dil_3 + ...
-                  sum(cubicCoeffs2, 2+ext_dims)*dil_2 + ...
-                  sum(cubicCoeffs1, 2+ext_dims)*dil_1 + ...
-                  sum(cubicCoeffs0, 2+ext_dims);
+            val = cubicCoeffs3*dil_3 + ...
+                  cubicCoeffs2*dil_2 + ...
+                  cubicCoeffs1*dil_1 + ...
+                  cubicCoeffs0;
 
             if (nargout > 1)
                 der = zeros([Obj.op_dims Obj.in_dims]);
