@@ -100,7 +100,10 @@
             % The next dimension (I) needs to be shifted by 1 less value, i.e.,
             % ext_dims. To account for the row vector initialization, we substract 1
             pi_vals  = shiftdim([dil_3, dil_2, dil_1, 1], 1-ext_dims);
+            pij_mat  = pi_vals .* pj_vals;
+            val      = sum(sum(pij_mat .* Obj.coeffs(Obj.colons{:},:,:,i,j), 1+ext_dims), 2+ext_dims);
 
+            %{
             cubicCoeffs3 = sum(pj_vals .* Obj.coeffs(Obj.colons{:},1,:,i,j), 2+ext_dims);
             cubicCoeffs2 = sum(pj_vals .* Obj.coeffs(Obj.colons{:},2,:,i,j), 2+ext_dims);
             cubicCoeffs1 = sum(pj_vals .* Obj.coeffs(Obj.colons{:},3,:,i,j), 2+ext_dims);
@@ -110,6 +113,7 @@
                   cubicCoeffs2*dil_2 + ...
                   cubicCoeffs1*dil_1 + ...
                   cubicCoeffs0;
+            %}
 
             if (nargout > 1)
                 der = zeros([Obj.op_dims Obj.in_dims]);
