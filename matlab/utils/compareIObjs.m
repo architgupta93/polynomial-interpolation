@@ -27,6 +27,10 @@ function [estimation_error, speedup] = compareIObjs(n_tpts_seed, bounds, ...
 %   VARARGIN: A list of other interpolants to compare. This list should be in the form
 %       {<ip_obj1>, <ip_label1>, ..., <ip_objn>, <ip_labeln>}
 %
+%   TODO: For functions that produce more than 2 inputs, plots cannot be
+%   visulaized. To accomodate this, we should take a set of 2D points and then
+%   create higher-D points from them so that the values can be plotted.
+%
 % Example:
 %   fx        = @(x) sin(2*pi*x);
 %   bli_ip    = BLI(fx);
@@ -166,13 +170,5 @@ function [estimation_error, speedup] = compareIObjs(n_tpts_seed, bounds, ...
         return;
     end
 
-    % TODO: Plotting
-    if ( n_in_dims == 1)
-        fig_handle = plotComparison({}, s_pts, f_vals, ip_vals{:}, 'Baseline', ip_labels{:});
-    elseif ( n_in_dims == 2 )
-        fig_handle = plotComparison({}, s_pts, f_vals, ip_vals{:}, 'Baseline', ip_labels{:});
-    else
-        fprintf(2, 'Too many dimensions for plotting\n');
-    end
-    
+    fig_handle = plotComparison({}, s_pts, f_vals, ip_vals{:}, 'Baseline', ip_labels{:});
 end

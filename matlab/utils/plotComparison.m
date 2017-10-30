@@ -80,8 +80,53 @@ function success = plotComparison(axis_labels, ref_pts_or_individual_refs, varar
         data_vals{ol} = squeeze(varargin{ol});
     end
 
+    is_1D_data = (g_dims(data_vals{1}) == 1);
+    n_in_dims    = length(ref_pts);
+
+    % These values have to be sorted otherwise, we get a dimension mismatch in
+    % plotting. Also, we do not want repeatitions, hence randperm
+    var_in_dims  = sort(randperm(n_in_dims, min(2, n_in_dims)), 'ascend');
+
+    in_cols      = cell(1, n_in_dims);
+    [in_cols{:}] = deal(':');
+
+    out_dims = g_dims(data_vals{1}) - n_in_dims;
+    out_cols = cell(1, out_dims);
+    [out_cols{:}] = deal(1);
+
+    if (~is_1D_data)
+
+        if (g_dims(data_vals{1} > 2))
+            % If this is the case, then we can only plot a subset of the indices
+            % that are plotted. The current scheme is simple!
+            % Just pick all but 2 dimensions at random and fix indices for all
+            % the remaning dimensions.
+            
+            for in_dim = 1 : n_in_dims
+                if ( (in_dim == var_in_dims(1)) || (in_dim == var_in_dims(2)) ) 
+                    % Let all elements be allowed to vary for these dimensions
+                    continue;
+                end
+
+                in_cols{in_dim} = randi([1 length(ref_pts{in_dim})], 1);
+            end
+        end
+
+        % TODO: What we did for input colons can also be done for output colons
+        % but for the time being we will just stick to something simple
+        if (out_dims > 0)
+            % DO SOMETHING
+        end
+    end
+
+    % Even if the data is NOT 1D, we can simply plot the indices of the sample
+    % points to look at the error (instead of actually plotting the
+    % sample-point, sample-value pairs). However, that is NOT what is done right
+    % now: TODO
+    is_1D_plot = is_1D_data;
+
     figure(); hold on;
-    if (g_dims(data_vals{1}) == 1)
+    if (is_1D_plot)
         % Just change these and the rest should work out
         % For example:
         %   plot_fun  = @scatter;
@@ -97,9 +142,11 @@ function success = plotComparison(axis_labels, ref_pts_or_individual_refs, varar
         % Loop thorugh the data and plot
         % TODO: Maybe put a try catch block around this.
         for ol = 1:n_overlays
-            plot_fun(ref_pts{1}, data_vals{ol}, plot_args{:});
+            plot_fun(ref_pts{1}, data_vals{ol}(out_cols{:}, in_cols{:}), plot_args{:});
         end
-    elseif (g_dims(varargin{2} == 2))
+        xlabel(axis_labels{1});
+        ylabel(axis_labels{2});
+    else
         plot_fun  = @surf;
         plot_args = {};
 
@@ -109,15 +156,13 @@ function success = plotComparison(axis_labels, ref_pts_or_individual_refs, varar
 
         for ol = 1:n_overlays
             % TODO: The requirement of a transposing the data for a surf plot
-            surf(ref_pts{1}, ref_pts{2}, data_vals{ol}');
+            surf(ref_pts{var_in_dims(1)}, ref_pts{var_in_dims(2)}, squeeze(data_vals{ol}(out_cols{:}, in_cols{:}))');
         end
-    else
-        error('Too many data dimensions to plot!');
+        xlabel(axis_labels{var_in_dims(1)});
+        ylabel(axis_labels{var_in_dims(2)});
     end
     legend(data_labels{:});
     set(gca, 'FontSize', 28);
-    xlabel(axis_labels{1});
-    ylabel(axis_labels{2});
     grid on;
     hold off;
 
