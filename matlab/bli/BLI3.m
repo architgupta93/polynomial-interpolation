@@ -38,9 +38,11 @@ classdef BLI3 < Interpolant
         
         % API Function(s) for evaluation
         function [val, der] = computeWithDer(Obj, x_in)
-            val = 0;
-            der = 0;
+            i_nuvals = Obj.nu_pols.computeWithDer(x_in(2:3));
+            val = Obj.BLI_fit.computeWithDer(x_in(1), i_nuvals);
+
             % TODO
+            der = 0;
         end
 
         % Some other rarely used access functions
