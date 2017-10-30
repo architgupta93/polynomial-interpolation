@@ -13,12 +13,12 @@ classdef BLI2 < Interpolant
             end
 
             % Express the function values as a BLI expression in the first dimensioN
-            g_nu = zeros(Obj.op_dims, Obj.i_pts.n_pts(1), Obj.i_pts.n_pts(2));
+            g_nu = zeros([Obj.op_dims, Obj.i_pts.n_pts(1), Obj.i_pts.n_pts(2)]);
             
             for p_i = 1:Obj.i_pts.n_pts(2)
                 BLI_fit = BLI(Obj.f_vals(Obj.colons{:}, :, p_i), 1, {Obj.bounds{1}}, Obj.order(1, 1), varargin{end});
                 %                                                           This is i_type_or_x_vals ^^
-                g_nu(:, :, p_i) = BLI_fit.nu_vals;
+                g_nu(Obj.colons{:}, :, p_i) = BLI_fit.nu_vals;
             end
 
             Obj.BLI_fit = BLI_fit;
