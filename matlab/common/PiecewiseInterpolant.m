@@ -115,16 +115,21 @@ classdef PiecewiseInterpolant < SaveLoad
     methods (Access = public)  % Abstract functions from MATLAB
     % API functions that all the inheriting classes should implement
         function [val, der] = computeWithDer(Obj, x_in);
-            val = [];
-            der = [];
+        % function [val, der] = computeWithDer(Obj, x_in);
+        % DEFAULT IMPLEMENTATION
+            if (nargout > 1)
+                [val, der] = Obj.interpolate(x_in);
+            else
+                val = Obj.interpolate(x_in);
+            end
         end
     end
 
     methods (Access = public)
         function Obj = PiecewiseInterpolant(f_handle, in_dims, bounds, ...
-            order, i_type, smooth)
+            order, i_type, smooth, access_handle)
         % function Obj = PiecewiseInterpolant(f_handle, in_dims, bounds, ...
-        %    order, i_type, smooth)
+        %    order, i_type, smooth, access_handle)
         % Class constructor
         % Takes in the following input(s):
         %   F_HANDLE: Function handle (or values) for the function to be
@@ -135,6 +140,8 @@ classdef PiecewiseInterpolant < SaveLoad
         %   I_TYPE: The category of sample points to be used.
         %   SMOOTH: [BOOL] Whether the individual polynomial interpolants
         %       should be smoothened using and overlaid interpolant.
+        %   ACCESS_HANDLE: A Class constructor handle to be used to fill in the
+        %       individual polynomial pieces
 
             if ( nargin == 0 )
                 % DEBUG
@@ -216,6 +223,19 @@ classdef PiecewiseInterpolant < SaveLoad
             if (nargin > 5)
                 Obj.is_smooth = true;
                 % Otherwise, use the default value, which is FALSE
+            end
+
+            if (nargin > 6) 
+                % We have the access handle to the class constructor which is an
+                % interpolant. We can use this to construct the piecewise
+                % interpolant
+
+                Obj.m_interp = cell(squeeze([Obj.n_pieces 1]));
+                for p_i = 1:prod(Obj.n_pieces)
+                    l_bounds = {Obj.getLocalBounds(p_i)};
+                    Obj.m_interp{p_i} = access_handle(f_handle, in_dims, ...
+                        l_bounds, order, i_type);
+                end
             end
         end
 
