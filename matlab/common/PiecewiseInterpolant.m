@@ -4,13 +4,41 @@ classdef PiecewiseInterpolant < SaveLoad
     end
 
     properties (SetAccess = protected, GetAccess = public)
-        n_in_dims = 0;     % Number of input dimensions
-        op_dims = 0;
-        n_pieces = [];  % Array containing numer of pieces in each dimension 
-        order = 0;
+        % INPUT: As of now, we only allow functions of vectors to be
+        % interpolated, a scalar number, therefore, defines its size
+        in_dims = 0;
+
+        % OUTPUT: This can have an arbitrary dimension, as a result, the
+        % dimensionality needs to be stored as a row vector
+        op_dims   = 0;
+
+        % N PIECES: The number of pieces per input dimension. Only a Cartesian
+        % partitioning of the overall input space is allowed with piecewise
+        % inteprolants.
+        n_pieces  = [];
+
+        % REFINENESS: For each interpolant, there is a notion of 'refinement'.
+        % ORDER defines the degree of refineness. Higher the order, larger the
+        % size of the interpolant, and hopefully, better the interpolation. The
+        % exact nature of this depends on the interpolant
+        % TODO: Presently, all the pieces in a dimension are assigned the same
+        % order. This is not necessary!
+        order     = 0;
+
+        % IS SMOOTH: Do we smoothen the pieces using an overlaid interpolant?
         is_smooth = false;
-        bounds = cell(0);
-        colons = cell(0);   % Somewhat useful for accesses
+
+        % DOMAIN: Domain bounds for each piece inside which the interpolant CAN
+        % interpolate the values. Each cell has to define the boundary values
+        % for a dimension.
+        bounds    = cell(0);
+
+        % COLONS: This is a MATLAB/OCTAVE centric field required for indexing
+        % all the OUTPUTs corresponding to a specific (partial) input value.
+        % For example, if the output has dimesions 2x3x4x5, then for any input
+        % value, these values are indexed using {:, :, :, :}, which is stored
+        % in colons
+        colons    = cell(0);
     end
 
     properties (Access = protected)
@@ -32,8 +60,8 @@ classdef PiecewiseInterpolant < SaveLoad
     methods (Access = protected)
         function l_bounds = getLocalBounds(Obj, pc_index)
             b_i = pc_index - 1;
-            l_bounds = zeros(2, Obj.n_in_dims);
-            for d_i = 1:Obj.n_in_dims
+            l_bounds = zeros(2, Obj.in_dims);
+            for d_i = 1:Obj.in_dims
                 l_index = rem(b_i, Obj.n_pieces(d_i));
                 l_bounds(1, d_i) = Obj.bounds{d_i}(l_index+1); 
                 l_bounds(2, d_i) = Obj.bounds{d_i}(l_index+2);
@@ -42,8 +70,8 @@ classdef PiecewiseInterpolant < SaveLoad
         end
 
         function pc = getPieceIndex(Obj, x_in)
-            pc = cell(Obj.n_in_dims, 1);
-            for d_i = 1:Obj.n_in_dims
+            pc = cell(Obj.in_dims, 1);
+            for d_i = 1:Obj.in_dims
                 pc{d_i, 1} = find(x_in(d_i, 1) <= [ -Inf; Obj.bounds{d_i}(2:end-1); Inf ], 1) - 1;
 
                 % For debugging purposes only
@@ -65,7 +93,7 @@ classdef PiecewiseInterpolant < SaveLoad
                 o_qty = qty;
             else
                 error(['ERROR: Supplied vector for quantity', ...
-                    'inappropriately sized w.r.t. n_pieces\n']);
+                    'inappropriately sized w.r.t. n_pieces']);
             end
         end
 
@@ -93,30 +121,46 @@ classdef PiecewiseInterpolant < SaveLoad
     end
 
     methods (Access = public)
-        function Obj = PiecewiseInterpolant(f_handle, n_in_dims, bounds, order, i_type, smooth)
+        function Obj = PiecewiseInterpolant(f_handle, in_dims, bounds, ...
+            order, i_type, smooth)
+        % function Obj = PiecewiseInterpolant(f_handle, in_dims, bounds, ...
+        %    order, i_type, smooth)
+        % Class constructor
+        % Takes in the following input(s):
+        %   F_HANDLE: Function handle (or values) for the function to be
+        %       interpolated.
+        %   IN_DIMS: Input dimensions (Number).
+        %   BOUNDS: CELL ARRAY of the breakpoints in each dimension.
+        %   ORDER: See REFINENESS in the description of properties above.
+        %   I_TYPE: The category of sample points to be used.
+        %   SMOOTH: [BOOL] Whether the individual polynomial interpolants
+        %       should be smoothened using and overlaid interpolant.
+
             if ( nargin == 0 )
                 % DEBUG
                 fprintf(2, 'Instantiating an EMPTY Piecewise Interpolant\n');
                 return;
             end
-            Obj.n_in_dims = n_in_dims;
+            Obj.in_dims = in_dims;
 
-            % Either we are given a function handle and we can use it to  determine the dimensions of the output that
-            % the function produces OR we could be given the function values (appropriately sized) and we would have to
-            % figure out the rest from there
+            % Either we are given a function handle and we can use it to
+            % determine the dimensions of the output that the function produces
+            % OR we could be given the function values (appropriately sized) and
+            % we would have to figure out the rest from there
             if ( strcmp(class(f_handle), 'function_handle') )
-                tval = f_handle(zeros(n_in_dims, 1));
+                tval = f_handle(zeros(in_dims, 1));
                 Obj.op_dims = g_size(tval);
             elseif ( isnumeric(f_handle) )
-                % We have some GIANT matrix that needs to be resolved. However, this matrix is arranged as follows:
-                % data x n_pieces x n_pts (per piece)
+                % We have some GIANT matrix that needs to be resolved. However,
+                % this matrix is arranged as follows: data x n_pieces x n_pts
+                % (per piece)
                 s_fvals = size(f_handle);
-                Obj.op_dims = s_fvals(1:end - ( Obj.n_in_dims +   1 ));
+                Obj.op_dims = s_fvals(1:end - ( Obj.in_dims +   1 ));
                 %                                   ^^              ^^
                 %                               Accounting for   n_pieces
                 %                                the input(s)       (1)
             else
-                error('Invalid/Unsupported data type for input function\n');
+                error('Invalid/Unsupported data type for input function');
             end
             Obj.colons = cell(size(Obj.op_dims));
             [Obj.colons{:}] = deal(':');
@@ -132,32 +176,32 @@ classdef PiecewiseInterpolant < SaveLoad
                 Obj.n_pieces(1, pc_index) = size( Obj.bounds{pc_index}, 1 ) - 1;
             end
 
-            if ( size(Obj.n_pieces,2) ~= n_in_dims )
+            if ( size(Obj.n_pieces,2) ~= in_dims )
                 fprintf(2, 'NOTE: Expect n_pieces to be a row vector\n');
-                error('Mismatch in supplied n_pieces (per dimensions) and n_in_dims');
+                error('Mismatch in supplied n_pieces (per dimensions) and in_dims');
             end
 
             if (nargin > 2)
                 % Checking that the supplied bounds match the intended number of
                 % pieces for interpolation using piecewise Chebyshev series
-                if ( (size(bounds, 2) ~= Obj.n_in_dims) )
+                if ( (size(bounds, 2) ~= Obj.in_dims) )
                     error(['Mismatch in supplied bounds and ', ...
-                        'n_in_dims. Expecting 1 x n_in_dims cell array\n']);
+                        'in_dims. Expecting 1 x in_dims cell array\n']);
                     return;
                 else
-                    for d_i = 1:Obj.n_in_dims
+                    for d_i = 1:Obj.in_dims
                         if ( size(bounds{d_i}) ~= (Obj.n_pieces(d_i) + 1) )
-                            error['Mismatch in supplied bounds and ', ...
-                                'n_pieces at dimension %s!\n'], d_i);
+                            error(['Mismatch in supplied bounds and ', ...
+                                'n_pieces at dimension %s!'], d_i);
                             return;
                         end
                     end
                 end
             else
-                % We will take a n_in_dims dimensional cube (x[-1, 1])^n_in_dims and
+                % We will take a in_dims dimensional cube (x[-1, 1])^in_dims and
                 % divide it into n_pieces equal pieces "TODO"
-                error['Automatic division not supported ', ... 
-                    'at the moment\n']);
+                error(['Automatic division not supported ', ... 
+                    'at the moment']);
             end
 
             if (nargin > 3)
@@ -190,8 +234,8 @@ classdef PiecewiseInterpolant < SaveLoad
 
         function plot(Obj, pc_index)
             if ( nargin < 2 )
-                pc_index = cell(Obj.n_in_dims,1);
-                for d_i = 1:Obj.n_in_dims
+                pc_index = cell(Obj.in_dims,1);
+                for d_i = 1:Obj.in_dims
                     pc_index{d_i, 1} = 1;
                 end
             end
@@ -228,7 +272,7 @@ classdef PiecewiseInterpolant < SaveLoad
             % fprintf(2, 'Saving Piecewise interpolant...\n');
             % fprintf(2, 'Saving Header Information...\n');
             % Saving class members that aren't instances of other classes themselves
-            n_in_dims   = Obj.n_in_dims;
+            in_dims   = Obj.in_dims;
             op_dims     = Obj.op_dims;
             n_pieces    = Obj.n_pieces;
             order       = Obj.order;
@@ -236,7 +280,7 @@ classdef PiecewiseInterpolant < SaveLoad
             bounds      = Obj.bounds;
             colons      = Obj.colons;
             save([dirname, '/header.info'], ...
-                'n_in_dims', ... 
+                'in_dims', ... 
                 'op_dims', ...
                 'n_pieces', ...
                 'order', ...
@@ -259,7 +303,7 @@ classdef PiecewiseInterpolant < SaveLoad
             % fprintf(2, 'Loading Piecewise interpolant...\n');
             % fprintf(2, 'Loading Header Information...\n');
             load([dirname, '/header.info'], ...
-                'n_in_dims', ... 
+                'in_dims', ... 
                 'op_dims', ...
                 'n_pieces', ...
                 'order', ...
@@ -267,7 +311,7 @@ classdef PiecewiseInterpolant < SaveLoad
                 'bounds', ...
                 'colons', ...
                 Obj.load_opts{:});   
-            Obj.n_in_dims   = n_in_dims;
+            Obj.in_dims   = in_dims;
             Obj.op_dims     = op_dims;
             Obj.n_pieces    = n_pieces;
             Obj.order       = order;
