@@ -16,6 +16,10 @@ classdef PiecewiseBLI3 < PiecewiseInterpolant
         function Obj = PiecewiseBLI3(varargin)
         % function Obj = PiecewiseBLI3(f_handle, n_in_dims, bounds, order, i_type, smooth)
         % Class constructor
+            % TODO: Check that n_in_dims is actually sane. 
+            % It was observed recently that you could take a 3 input function
+            % and pass it into PiecewiseBLI2 and it would actually produce some
+            % interpolant. This is very dangerous!
             Obj = Obj@PiecewiseInterpolant(varargin{:}, @BLI3);
             if ( isempty(varargin) )
                 return;
