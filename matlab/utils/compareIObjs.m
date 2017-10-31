@@ -1,6 +1,6 @@
-function [estimation_error, speedup] = compareIObjs(n_tpts_seed, bounds, ...
+function [est_err, speedup] = compareIObjs(n_tpts_seed, bounds, ...
     f_obj, ip_obj, ip_label, varargin)
-% function [estimation_error, speedup] = compareIObjs(n_tpts_seed, bounds, ...
+% function [est_err, speedup] = compareIObjs(n_tpts_seed, bounds, ...
 %    f_obj, ip_obj, ip_label, varargin) 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -145,6 +145,9 @@ function [estimation_error, speedup] = compareIObjs(n_tpts_seed, bounds, ...
         fprintf(2, '%s Evaluation time: %0.8f\n', mean(reshape(ip_eval_trials, [], 1)));
         %}
     end
+
+    % Speedup calculation
+    speedup = f_eval_time ./ ip_eval_times;
 
     % Error calculation
     est_err    = zeros(n_interpolants, 1);
