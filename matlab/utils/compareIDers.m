@@ -85,7 +85,7 @@ function compareIDers(n_tpts_seed, bounds, df_obj, ip_obj, ip_label, varargin)
     n_test_cases = test_obj.getNPts();
 
     ip_evals     = cell(n_interpolants, 1);
-    ip_evals{:}  = deal(zeros([n_op_dims n_in_dims n_test_pts]));
+    [ip_evals{:}]  = deal(zeros([n_op_dims n_in_dims n_test_pts]));
     df_evals     = zeros([n_op_dims n_in_dims n_test_pts]);
 
     colons       = cell( size(n_op_dims) );

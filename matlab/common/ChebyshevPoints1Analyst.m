@@ -52,9 +52,9 @@ classdef ChebyshevPoints1Analyst < ChebyshevPoints1
             % corresponds to the sample index. For this, we need to take a
             % transpose before passign on for DCT
             if (Obj.roots_or_extremas)  % Using roots
-                coeff_vals = amateur__DCT2(f_vals', 'CHEB_SERIES');
+                coeff_vals = amateur__DCT2(f_vals, 'CHEB_SERIES');
             else    % Using extremas
-                coeff_vals = amateur__DCT1(f_vals', 'CHEB_SERIES');
+                coeff_vals = amateur__DCT1(f_vals, 'CHEB_SERIES');
             end
         end
 

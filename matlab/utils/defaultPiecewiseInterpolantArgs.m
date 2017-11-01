@@ -21,7 +21,7 @@ function args = defaultInterpolantArguments(n_dims)
         n_dims = 1;
     end
 
-    n_pcs   = 4;
+    n_pcs   = 5;
 
     args    = cell(4, 1);
     args{1} = n_dims; % Number of input dimensions. Input can only be a VECTOR
@@ -31,7 +31,7 @@ function args = defaultInterpolantArguments(n_dims)
     [args{2}{:}] = deal(linspace(-1, 1, n_pcs)');
 
     % Order of the interpolant
-    args{3} = 4 * ones(1, n_dims);
+    args{3} = n_pcs * ones(1, n_dims);
 
     % Category of sample points
     args{4} = 'uniform';
