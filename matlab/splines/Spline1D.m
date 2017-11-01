@@ -153,8 +153,9 @@ classdef Spline1D < SplineInterpolant
                        Obj.coeffs(Obj.colons{:},:,index), 1+ext_dims);
 
             if (nargout > 1)
-                der  = dx_out * sum(pj_vals .* ...
-                      Obj.coeffs(Obj.colons{:},1:3,index), 1+ext_dims);
+                dpj_vals = shiftdim([3*dl_2, 2*dl_1, 1], 1-ext_dims);
+                der      = dx_out * sum(dpj_vals .* ...
+                           Obj.coeffs(Obj.colons{:},1:3,index), 1+ext_dims);
             end
         end
 

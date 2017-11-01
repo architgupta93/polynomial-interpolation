@@ -1,8 +1,8 @@
 disp('Using of Barycentric-Lagrange Interpolant for smoothing');
-step_width      = 100;
+step_width      = 10000;
 % [fun, dfun, bkpts] = getTestFHandle(1, 1, 'd'); 
-% fun             = @(x) (1 - x) .* (1 + tanh(step_width*x))/2;
-% dfun            = @(x) (step_width/2)*(1-x).*(1 - tanh(step_width*x).^2)  - (1 + tanh(step_width*x))/2;
+% fun             = @(x) tanh(step_width*x);
+% dfun            = @(x) step_width*(1 - tanh(step_width*x).^2);
 
 fun             = @(x) (1 - x) .* (1 + tanh(step_width*x))/2;
 dfun            = @(x) (step_width/2)*(1-x).*(1 - tanh(step_width*x).^2)  - (1 + tanh(step_width*x))/2;
@@ -21,16 +21,20 @@ hod_interpolant = BLI(fun, hod_args{:});
 hod_interpolant.plotChebCoeffs();
 
 pw_args         = defaultPiecewiseInterpolantArgs(1);
-pw_args{2}      = {[-1.0; -0.3; -0.1; 0.001; 0.0; 0.001; 0.1; 0.3; 1.0]};
-pw_args{3}      = [3];
+pw_args{2}      = {[-1.0; -0.1; 0.0; 0.1; 1.0]};
+pw_args{3}      = [2];
 pw_args{4}      = 'chebyshev';
-pw_interpolant  = PiecewiseBLI(fun, pw_args{:});
-pw_interpolant.plotChebCoeffs(2);
+pw_bli          = PiecewiseBLI(fun, pw_args{:});
+pw_bli.plotChebCoeffs(2);
+
+pw_spline       = PiecewiseSpline(fun, pw_args{:});
 
 n_test_pts      = 1000;
 bounds          = args{2};
 compareIObjs(n_test_pts, bounds, fun, bl_interpolant, 'LO', ...
-    hod_interpolant, 'HO', pw_interpolant, 'PW-BLI');
+    hod_interpolant, 'HO', pw_bli, 'PW-BLI', ...
+    pw_spline, 'PW-SPLINE');
 compareIDers(n_test_pts, bounds, dfun, bl_interpolant, 'LO', ...
-    hod_interpolant, 'HO', pw_interpolant, 'PW-BLI');
+    hod_interpolant, 'HO', pw_bli, 'PW-BLI', ...
+    pw_spline, 'PW-SPLINE');
 
