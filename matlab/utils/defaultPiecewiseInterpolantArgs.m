@@ -21,14 +21,14 @@ function args = defaultInterpolantArguments(n_dims)
         n_dims = 1;
     end
 
-    n_pcs   = 5;
+    n_pcs   = 2;
 
     args    = cell(4, 1);
     args{1} = n_dims; % Number of input dimensions. Input can only be a VECTOR
 
     % The bounds for each dimension
     args{2} = cell(1, n_dims);
-    [args{2}{:}] = deal(linspace(-1, 1, n_pcs)');
+    [args{2}{:}] = deal(linspace(-1, 1, 1+n_pcs)');
 
     % Order of the interpolant
     args{3} = n_pcs * ones(1, n_dims);
