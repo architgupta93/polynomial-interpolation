@@ -12,6 +12,7 @@ classdef PiecewiseBLI < PiecewiseInterpolant
                 smooth = false;
             end
 
+            Obj.is_smooth = smooth;
             if (smooth)
                 Obj.setAccessHandle(@SplineBLI, f_handle);
             else

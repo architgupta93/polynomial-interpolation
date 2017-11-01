@@ -59,9 +59,19 @@ classdef PiecewiseInterpolant < SaveLoad
             if (nargin > 1)
                 for interp_in = 1 : prod(Obj.n_pieces)
                     % This should now have all the required fields
-                    l_bounds    = {Obj.getLocalBounds(interp_in)};
+                    l_bounds                = {Obj.getLocalBounds(interp_in)};
                     Obj.m_interp{interp_in} = Obj.acc_han(f_handle, Obj.in_dims, ...
                         l_bounds, Obj.order, Obj.i_type);
+                    % After the interpolant has been fit, smoothing needs to be
+                    % done by supplying the derivative and value for the
+                    % adjoining interpolants
+                    % TODO: This needs to be changed for a generalized spline
+                    if (Obj.is_smooth && interp_in > 1)
+                        corner_slope = Obj.m_interp{interp_in}.firstDerivativeAtPt();
+                        fprintf('DEBUG: Fitting corner slope: %d', ...
+                            corner_slope);
+                        Obj.m_interp{interp_in-1}.fit(corner_slope);
+                    end
                 end
             end
 
