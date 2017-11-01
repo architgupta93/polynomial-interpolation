@@ -39,18 +39,29 @@ classdef PiecewiseInterpolant < SaveLoad
         % value, these values are indexed using {:, :, :, :}, which is stored
         % in colons
         colons    = cell(0);
+
+        % ACCESS_HANDLE: A Function handle which has to be a constructor for the
+        % interpolant class. This can be used to populate the piecewise
+        % interpolant
+        acc_han   = @Interpolant;
     end
 
     properties (Access = protected)
         m_interp = cell(0);
     end
 
-    methods (Access = protected) % Should actually be abstract functions but that isn't supported very well in Octave
-        function populate(Obj)
+    methods (Access = protected)
+        function populate(Obj, varargin)
             Obj.m_interp = squeeze(cell([Obj.n_pieces 1]));
             for interp_in = 1 : prod(Obj.n_pieces)
-                Obj.m_interp{interp_in} = Interpolant();
+                if (~isempty(varargin))
+                    % This should now have all the required fields
+                    l_bounds    = {Obj.getLocalBounds(interp_in)};
+                    varargin{3} = l_bounds;
+                end
+                Obj.m_interp{interp_in} = Obj.acc_han(varargin{:});
             end
+
             if ( isempty(Obj.n_pieces) )
                 warning('Running populate with Abstract class "PiecewiseInterpolant" while n_pieces is empty. Hopefully you know what is going on :)');
             end
@@ -127,9 +138,9 @@ classdef PiecewiseInterpolant < SaveLoad
 
     methods (Access = public)
         function Obj = PiecewiseInterpolant(f_handle, in_dims, bounds, ...
-            order, i_type, smooth, access_handle)
+            order, i_type, access_handle, smooth)
         % function Obj = PiecewiseInterpolant(f_handle, in_dims, bounds, ...
-        %    order, i_type, smooth, access_handle)
+        %    order, i_type, access_handle, smooth)
         % Class constructor
         % Takes in the following input(s):
         %   F_HANDLE: Function handle (or values) for the function to be
@@ -138,10 +149,10 @@ classdef PiecewiseInterpolant < SaveLoad
         %   BOUNDS: CELL ARRAY of the breakpoints in each dimension.
         %   ORDER: See REFINENESS in the description of properties above.
         %   I_TYPE: The category of sample points to be used.
-        %   SMOOTH: [BOOL] Whether the individual polynomial interpolants
-        %       should be smoothened using and overlaid interpolant.
         %   ACCESS_HANDLE: A Class constructor handle to be used to fill in the
         %       individual polynomial pieces
+        %   SMOOTH: [BOOL] Whether the individual polynomial interpolants
+        %       should be smoothened using and overlaid interpolant.
 
             if ( nargin == 0 )
                 % DEBUG
@@ -220,22 +231,17 @@ classdef PiecewiseInterpolant < SaveLoad
                 Obj.order = Obj.d_order * ones( size(Obj.n_pieces) );
             end
 
-            if (nargin > 5)
-                Obj.is_smooth = true;
-                % Otherwise, use the default value, which is FALSE
-            end
-
-            if (nargin > 6) 
+            if (nargin > 5) 
                 % We have the access handle to the class constructor which is an
                 % interpolant. We can use this to construct the piecewise
                 % interpolant
+                Obj.acc_han = access_handle;
+                Obj.populate(f_handle, in_dims, bounds, order, i_type);
+            end
 
-                Obj.m_interp = cell(squeeze([Obj.n_pieces 1]));
-                for p_i = 1:prod(Obj.n_pieces)
-                    l_bounds = {Obj.getLocalBounds(p_i)};
-                    Obj.m_interp{p_i} = access_handle(f_handle, in_dims, ...
-                        l_bounds, order, i_type);
-                end
+            if (nargin > 6)
+                Obj.is_smooth = true;
+                % Otherwise, use the default value, which is FALSE
             end
         end
 
