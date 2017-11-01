@@ -10,13 +10,15 @@ args            = defaultInterpolantArgs();
 args{4}         = 'chebyshev';
 
 disp('Instantiating BLI.')
-bl_interpolant  = Spline1D(fun, args{:});
-% bl_interpolant.plotChebCoeffs();
+% bl_interpolant  = Spline1D(fun, args{:});
+bl_interpolant  = BLI(fun, args{:});
+bl_interpolant.plotChebCoeffs();
 
 hod_args        = args;
 hod_args{3}(:)  = 6;
-hod_interpolant = Spline1D(fun, hod_args{:});
-% hod_interpolant.plotChebCoeffs();
+% hod_interpolant = Spline1D(fun, hod_args{:});
+hod_interpolant = BLI(fun, hod_args{:});
+hod_interpolant.plotChebCoeffs();
 
 n_test_pts      = 1000;
 bounds          = args{2};
