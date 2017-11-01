@@ -1,6 +1,6 @@
 disp('Using of Barycentric-Lagrange Interpolant for smoothing');
 step_width      = 100;
-% [ofun, d_fun, bkpts] = getTestFHandle(1, 1, 'd'); 
+% [fun, dfun, bkpts] = getTestFHandle(1, 1, 'd'); 
 % fun             = @(x) (1 - x) .* (1 + tanh(step_width*x))/2;
 % dfun            = @(x) (step_width/2)*(1-x).*(1 - tanh(step_width*x).^2)  - (1 + tanh(step_width*x))/2;
 
@@ -13,17 +13,19 @@ args{4}         = 'chebyshev';
 
 disp('Instantiating BLI.')
 bl_interpolant  = BLI(fun, args{:});
-% bl_interpolant.plotChebCoeffs();
+bl_interpolant.plotChebCoeffs();
 
 hod_args        = args;
 hod_args{3}(:)  = 6;
 hod_interpolant = BLI(fun, hod_args{:});
-% hod_interpolant.plotChebCoeffs();
+hod_interpolant.plotChebCoeffs();
 
 pw_args         = defaultPiecewiseInterpolantArgs(1);
-pw_args{3}(:)   = 5;
+pw_args{2}      = {[-1.0; -0.3; -0.1; 0.001; 0.0; 0.001; 0.1; 0.3; 1.0]};
+pw_args{3}      = [3];
 pw_args{4}      = 'chebyshev';
 pw_interpolant  = PiecewiseBLI(fun, pw_args{:});
+pw_interpolant.plotChebCoeffs(2);
 
 n_test_pts      = 1000;
 bounds          = args{2};

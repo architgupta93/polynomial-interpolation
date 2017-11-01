@@ -92,8 +92,8 @@ classdef PiecewiseInterpolant < SaveLoad
             elseif ( prod(size(qty) == size(Obj.n_pieces)) )
                 o_qty = qty;
             else
-                error(['ERROR: Supplied vector for quantity', ...
-                    'inappropriately sized w.r.t. n_pieces']);
+                error(['ERROR: Supplied vector for quantity inappropriately sized w.r.t. n_pieces.', ...
+                    ' Expecting same size as n_pieces']);
             end
         end
 
