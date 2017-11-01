@@ -11,8 +11,10 @@ classdef Spline1D < SplineInterpolant
             n_plus_1 = Obj.i_pts.getNPts(1);
 
             if ( n_plus_1 <= 3)
-                error(['You can write your interpolation on a piece of paper for ', ...
-                    'so few points. Go get a life!']);
+                error(['What should  do if you ask for an interpolant', ...
+                    ' based on 3 or fewer point(s)? I should quit. That's what I do!']);
+                % If you are stuck on this error and would like to stick with 3
+                % or fewer points, try one of the interpolants under "smooth"
             else
                 % Now that we have more than 3 points to work with, we will set up
                 % sparse matrix equation that gives us the coefficients of the spline
