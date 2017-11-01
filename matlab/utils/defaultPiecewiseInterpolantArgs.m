@@ -35,6 +35,4 @@ function args = defaultInterpolantArguments(n_dims)
 
     % Category of sample points
     args{4} = 'uniform';
-
-    args{5} = false;
 end

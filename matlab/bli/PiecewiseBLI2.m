@@ -3,23 +3,11 @@ classdef PiecewiseBLI2 < PiecewiseInterpolant
 % Class definition for a 2D, Piecewise Barycentric Lagrange interpolant
 % This reuses most of the code from the PiecewiseInterpolant class. The only
 % significant difference is the declaration of the access handle BLI2
-    methods (Access = protected)
-        function populate(Obj)
-            Obj.m_interp = squeeze(cell([Obj.n_pieces 1]));
-            for interp_in = 1 : prod(Obj.n_pieces)
-                Obj.m_interp{interp_in} = BLI2();
-            end
-        end
-    end
-
     methods (Access = public)
-        function Obj = PiecewiseBLI2(varargin)
-        % function Obj = PiecewiseBLI2(f_handle, n_in_dims, bounds, order, i_type, smooth)
+        function Obj = PiecewiseBLI2(f_handle, n_in_dims, bounds, order, i_type)
+        % function Obj = PiecewiseBLI2(f_handle, n_in_dims, bounds, order, i_type)
         % Class constructor
-            Obj = Obj@PiecewiseInterpolant(varargin{:}, @BLI2);
-            if ( isempty(varargin) )
-                return;
-            end
+            Obj = Obj@PiecewiseInterpolant(f_handle, n_in_dims, bounds, order, i_type, @BLI2);
         end
     end
 end
