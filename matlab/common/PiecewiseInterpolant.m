@@ -135,12 +135,6 @@ classdef PiecewiseInterpolant < SaveLoad
             end
         end
 
-        function clearInterpolants(Obj)
-            % Clear the contents of m_interp so that a new interpolant can be
-            % put in
-            Obj.m_interp = {};
-        end
-
         function setAccessHandle(Obj, access_handle, f_handle)
             Obj.acc_han = access_handle; 
             Obj.populate(f_handle);
@@ -278,6 +272,32 @@ classdef PiecewiseInterpolant < SaveLoad
                 Obj.is_smooth = true;
                 % Otherwise, use the default value, which is FALSE
             end
+        end
+
+        function clearAllInterpolants(Obj)
+            % Clear the contents of m_interp so that a new interpolant can be
+            % put in
+            Obj.m_interp = {};
+        end
+
+        function setInterpolant(Obj, pc_idx, access_handle, f_handle, ...
+            bounds, order, i_type)
+        % function setInterpolant(Obj, pc_idx, access_handle, f_handle, ...
+        %     bounds, order, i_type)
+        % Replace an existing interpolant with one of your choice. Optionally,
+        % you can also pick the parameters for this new interpolant
+            if (nargin < 7)
+                i_type = Obj.i_type;
+                if (nargin < 6)
+                    order = Obj.order;
+                    if (nargin < 5)
+                        bounds = {Obj.getLocalBounds(pc_idx)};
+                    end
+                end
+            end
+
+            Obj.m_interp{pc_idx} = access_handle(f_handle, Obj.in_dims, bounds, ...
+                order, i_type);
         end
 
         function der = secondDerivative(Obj, x_in)

@@ -16,6 +16,10 @@ args{4}         = 'chebyshev';
 disp('Instantiating SplineBLI.')
 % Pass in argument for smoothing
 bl_interpolant  = PiecewiseBLI(fun, args{:}, false);
+
+% Set the middle piece to be a low order spline
+bl_interpolant.setInterpolant(2, @Spline1D, fun, {[-0.1; 0.1]}, [2]);
+
 % bl_interpolant.plotChebCoeffs(1);
 % bl_interpolant.plotChebCoeffs(2);
 
