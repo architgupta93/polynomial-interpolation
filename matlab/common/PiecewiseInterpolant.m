@@ -33,6 +33,9 @@ classdef PiecewiseInterpolant < SaveLoad
         % for a dimension.
         bounds    = cell(0);
 
+        % I_TYPE: The type of interpolant (sample points) to be used
+        i_type    = [];
+
         % COLONS: This is a MATLAB/OCTAVE centric field required for indexing
         % all the OUTPUTs corresponding to a specific (partial) input value.
         % For example, if the output has dimesions 2x3x4x5, then for any input
@@ -51,15 +54,15 @@ classdef PiecewiseInterpolant < SaveLoad
     end
 
     methods (Access = protected)
-        function populate(Obj, varargin)
+        function populate(Obj, f_handle)
             Obj.m_interp = squeeze(cell([Obj.n_pieces 1]));
-            for interp_in = 1 : prod(Obj.n_pieces)
-                if (~isempty(varargin))
+            if (nargin > 1)
+                for interp_in = 1 : prod(Obj.n_pieces)
                     % This should now have all the required fields
                     l_bounds    = {Obj.getLocalBounds(interp_in)};
-                    varargin{3} = l_bounds;
+                    Obj.m_interp{interp_in} = Obj.acc_han(f_handle, Obj.in_dims, ...
+                        l_bounds, Obj.order, Obj.i_type);
                 end
-                Obj.m_interp{interp_in} = Obj.acc_han(varargin{:});
             end
 
             if ( isempty(Obj.n_pieces) )
@@ -121,6 +124,17 @@ classdef PiecewiseInterpolant < SaveLoad
                 val = Obj.m_interp{pc_index{:}}.computeWithDer(x_in);
             end
         end
+
+        function clearInterpolants(Obj)
+            % Clear the contents of m_interp so that a new interpolant can be
+            % put in
+            Obj.m_interp = {};
+        end
+
+        function setAccessHandle(Obj, access_handle, f_handle)
+            Obj.acc_han = access_handle; 
+            Obj.populate(f_handle);
+        end
     end
 
     methods (Access = public)  % Abstract functions from MATLAB
@@ -166,12 +180,14 @@ classdef PiecewiseInterpolant < SaveLoad
             % OR we could be given the function values (appropriately sized) and
             % we would have to figure out the rest from there
             if ( strcmp(class(f_handle), 'function_handle') )
+                % Get a test value, use it to determine the output size
                 tval = f_handle(zeros(in_dims, 1));
                 Obj.op_dims = g_size(tval);
             elseif ( isnumeric(f_handle) )
                 % We have some GIANT matrix that needs to be resolved. However,
                 % this matrix is arranged as follows: data x n_pieces x n_pts
                 % (per piece)
+                % TODO: Something has to be done here! Not sure whaT
                 s_fvals = size(f_handle);
                 Obj.op_dims = s_fvals(1:end - ( Obj.in_dims +   1 ));
                 %                                   ^^              ^^
@@ -218,8 +234,7 @@ classdef PiecewiseInterpolant < SaveLoad
             else
                 % We will take a in_dims dimensional cube (x[-1, 1])^in_dims and
                 % divide it into n_pieces equal pieces "TODO"
-                error(['Automatic division not supported ', ... 
-                    'at the moment']);
+                error(['Automatic division not supported at the moment']);
             end
 
             if (nargin > 3)
@@ -229,6 +244,14 @@ classdef PiecewiseInterpolant < SaveLoad
                 % dimensiona as well) supplied in the properties (Constant)
                 % section
                 Obj.order = Obj.d_order * ones( size(Obj.n_pieces) );
+                return;
+            end
+
+            if (nargin > 4)
+                Obj.i_type = i_type;
+            else
+                Obj.i_type = 'uniform';
+                return;
             end
 
             if (nargin > 5) 
@@ -236,7 +259,9 @@ classdef PiecewiseInterpolant < SaveLoad
                 % interpolant. We can use this to construct the piecewise
                 % interpolant
                 Obj.acc_han = access_handle;
-                Obj.populate(f_handle, in_dims, bounds, order, i_type);
+                Obj.populate(f_handle);
+            else
+                return;
             end
 
             if (nargin > 6)
@@ -323,6 +348,8 @@ classdef PiecewiseInterpolant < SaveLoad
             % fprintf(2, '\n');
         end
 
+        % TODO: Save/Load functions need to be updated after all the changes
+        % that have been made to the class.
         function load(Obj, dirname)
             % Loading class members that aren't instances of other classes themselves. Refer to the save function if it
             % to see which file are these located in. Current location is filename
