@@ -15,13 +15,13 @@ classdef BLI < Interpolant
             end
 
             if ( iscell(varargin{end}) )
-                Obj.wts = tensorProduct(Obj.wts);
+                Obj.coeffs = tensorProduct(Obj.coeffs);
             else
-                Obj.wts = tensorProduct(Obj.i_pts.getBLIWeights());
+                Obj.coeffs = tensorProduct(Obj.i_pts.getBLIWeights());
             end
-            diff_dims = ndims(Obj.wts) - ndims(Obj.f_vals); 
-            Obj.nu_vals = times(Obj.f_vals, shiftdim(Obj.wts', diff_dims));
-            Obj.de_vals = Obj.wts';
+            diff_dims = ndims(Obj.coeffs) - ndims(Obj.f_vals); 
+            Obj.nu_vals = times(Obj.f_vals, shiftdim(Obj.coeffs', diff_dims));
+            Obj.de_vals = Obj.coeffs';
 
             Obj.extrap_slope = zeros([Obj.op_dims 2]);
             Obj.extrap_slope(Obj.colons{:}, 1) = Obj.firstDerivativeAtPt(1);
