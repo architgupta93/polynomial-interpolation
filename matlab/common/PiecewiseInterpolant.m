@@ -68,9 +68,9 @@ classdef PiecewiseInterpolant < SaveLoad
                     % TODO: This needs to be changed for a generalized spline
                     if (Obj.is_smooth && interp_in > 1)
                         corner_slope = Obj.m_interp{interp_in}.firstDerivativeAtPt();
-                        fprintf('DEBUG: Fitting corner slope: %d', ...
+                        fprintf('DEBUG: Fitting corner slope: %d\n', ...
                             corner_slope);
-                        Obj.m_interp{interp_in-1}.fit(corner_slope);
+                        Obj.m_interp{interp_in-1}.fit([], corner_slope);
                     end
                 end
             end
@@ -269,7 +269,7 @@ classdef PiecewiseInterpolant < SaveLoad
             end
 
             if (nargin > 6)
-                Obj.is_smooth = true;
+                Obj.is_smooth = is_smooth;
                 % Otherwise, use the default value, which is FALSE
             end
         end
@@ -298,6 +298,24 @@ classdef PiecewiseInterpolant < SaveLoad
 
             Obj.m_interp{pc_idx} = access_handle(f_handle, Obj.in_dims, bounds, ...
                 order, i_type);
+        end
+
+        function ironOut(Obj, pc_idx)
+            r_der = [];
+            l_der = [];
+
+            % See if right derivative needs to be matched
+            if (pc_idx < length(Obj.m_interp))
+                r_der = Obj.m_interp{pc_idx+1}.firstDerivativeAtPt()
+            end
+
+            % See if left derivative needs to be matched
+            if (pc_idx > 1)
+                l_der = Obj.m_interp{pc_idx-1}.firstDerivativeAtPt(1)
+            end
+
+            % Match the specified derivatives
+            Obj.m_interp{pc_idx}.fit(l_der, r_der);
         end
 
         function der = secondDerivative(Obj, x_in)

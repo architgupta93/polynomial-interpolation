@@ -41,7 +41,9 @@ classdef BLI < Interpolant
                                         % consumption than multiplication of 1 row by 0 and subsequent addition
             diff_dims = ndims(exclude_pts) - ndims(Obj.nu_vals); 
 
-            der = ( -times( Obj.f_vals(:, pt_index), Obj.de_vals * exclude_pts ) + ...
+            [~, dx_out] = Obj.i_pts.rescaleShiftInput(this_pt);
+
+            der = dx_out * ( -times( Obj.f_vals(:, pt_index), Obj.de_vals * exclude_pts ) + ...
                sum(times(Obj.nu_vals, shiftdim(exclude_pts', diff_dims)), ndims(Obj.nu_vals)) ) / Obj.de_vals(pt_index); 
 
             % Previous implementation: TODO If anything goes wrong, uncomment this

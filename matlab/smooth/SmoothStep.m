@@ -25,12 +25,19 @@ classdef SmoothStep < Interpolant
             %   p'(1)  = 3a + 2b + c        ... vp_r
             %   p(-1)  = -a + b - c + d     ... v_l
             %   p(1)   =  a + b + c + d     ... v_r
+
+            % Need to adjust the derivative for the scaling
+            [~, dx]    = Obj.i_pts.rescaleShiftInput(0);
             if (isempty(vp_l))
                 vp_l = zeros(Obj.op_dims);
+            else
+                vp_l = vp_l / dx;
             end
 
             if (isempty(vp_r))
                 vp_r = zeros(Obj.op_dims);
+            else
+                vp_r = vp_r / dx;
             end
 
             np  = Obj.getNPts();
@@ -69,7 +76,6 @@ classdef SmoothStep < Interpolant
                 % Compute the polynomial  terms
                 x_in2    = times(x_in, x_in);
                 x_in3    = times(x_in, x_in2);
-
 
                 ext_dims = length(Obj.op_dims);
                 x_vec    = shiftdim([x_in3, x_in2, x_in, 1], 1-ext_dims);

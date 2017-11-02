@@ -14,7 +14,7 @@ classdef SplineBLI < BLI
             Obj = Obj@BLI(f_vals, n_in_dims, bounds, order, i_type_or_x_vals);
             
             if (nargin > 5)
-                Obj.fit(der);
+                Obj.fit([], der);
             end
         end
 
@@ -33,15 +33,18 @@ classdef SplineBLI < BLI
             end
         end
 
-        function fit(Obj, der)
-            % Fitting the overlying spline.. In order to fit a smoothing term, we need to know the derivative at the
-            % "RIGHT" boundary. It could very well have been the left derivative but we will stick to this convention
-            % for the time being
+        function fit(Obj, l_der, r_der)
+            % Fitting the overlying spline.. In order to fit a smoothing term,
+            % we need to know the derivative at the "RIGHT" boundary. It could
+            % very well have been the left derivative but we will stick to this
+            % convention for the time being
 
+            % TODO: Include the left derivative in the computation too
             n_pts = Obj.getNPts(1);
             Obj.spline_degree = 1;
             piece_scale = Obj.getPtAt(1) - Obj.getPtAt(n_pts);
-            Obj.spline_coeff = ( Obj.firstDerivativeAtPt(1) - der ) * ( Obj.wts(1) / piece_scale   );
+            Obj.spline_coeff = ( Obj.firstDerivativeAtPt(1) - r_der ) * ( ...
+                Obj.coeffs(1) / piece_scale   );
         end
 
         function der = firstDerivative(Obj, x_in)
