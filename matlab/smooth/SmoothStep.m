@@ -15,10 +15,10 @@ classdef SmoothStep < Interpolant
 
             % The domain is [-1, 1]; rescaling the actual domain to this has
             % already been handled above.
-            Obj.generateCoeffs([], []);
+            Obj.fit([], []);
         end 
 
-        function coeffs = generateCoeffs(Obj, vp_l, vp_r)
+        function coeffs = fit(Obj, vp_l, vp_r)
             % The scalar equations for this would be:
             %   p(x)   = ax3 + bx2 + cx + d
             %   p'(-1) = 3a - 2b + c        ... vp_l
@@ -45,9 +45,10 @@ classdef SmoothStep < Interpolant
             Obj.coeffs = zeros([Obj.op_dims 4]);
 
             Obj.coeffs(Obj.colons{:}, 2) = (vp_r - vp_l)/4.0;
-            Obj.coeffs(Obj.colons{:}, 4) = -Obj.coeffs(Obj.colons{:}, 2) + (v_l + v_r)/2.0;
-            Obj.coeffs(Obj.colons{:}, 1) =  Obj.coeffs(Obj.colons{:}, 2) - (v_l - v_r)/4.0;
-            Obj.coeffs(Obj.colons{:}, 3) = -Obj.coeffs(Obj.colons{:}, 1) + ...
+            Obj.coeffs(Obj.colons{:}, 4) = - Obj.coeffs(Obj.colons{:}, 2) + ...
+                (v_l + v_r)/2.0;
+            Obj.coeffs(Obj.colons{:}, 1) =  (vp_r + vp_l)/4.0 - (v_r - v_l)/4.0;
+            Obj.coeffs(Obj.colons{:}, 3) = - Obj.coeffs(Obj.colons{:}, 1) + ...
                 (v_r - v_l)/2.0;
 
             if (nargout > 0)
@@ -60,9 +61,9 @@ classdef SmoothStep < Interpolant
             der            = zeros(Obj.op_dims);
             [x_in, dx_out] = Obj.i_pts.rescaleShiftInput(x_in);
 
-            if (x_in < Obj.getPtAt(n_pts))
+            if (x_in < -1)
                 val = Obj.f_vals(Obj.colons{:}, n_pts);
-            elseif (x_in < Obj.getPtAt(n_pts))
+            elseif (x_in > 1)
                 val = Obj.f_vals(Obj.colons{:}, 1);
             else
                 % Compute the polynomial  terms
@@ -72,9 +73,18 @@ classdef SmoothStep < Interpolant
 
                 ext_dims = length(Obj.op_dims);
                 x_vec    = shiftdim([x_in3, x_in2, x_in, 1], 1-ext_dims);
-                val      = dx_out * sum(x_vec .* ...
-                            Obj.coeffs, ext_dims+1);
+                val      = sum(x_vec .* Obj.coeffs, ext_dims+1);
             end
+        end
+
+        function der = firstDerivativeAtPt(Obj, pt_index)
+            % TODO
+            der = 0;
+        end
+
+        function der = secondDerivativeAtPt(Obj, pt_index)
+            % TODO
+            der = 0;
         end
     % end methods
     end
