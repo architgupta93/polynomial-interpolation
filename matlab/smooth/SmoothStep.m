@@ -14,7 +14,8 @@ classdef SmoothStep < Interpolant
                 i_type_or_x_vals);
 
             % Create coefficients
-            Obj.coeffs = zeros([Obj.op_dims 2]);
+            % Hardcoding the order to 4 in current case
+            Obj.coeffs = zeros([Obj.op_dims 4]);
         end 
 
         function [val, der] = computeWithDer(Obj, x_in)
@@ -35,16 +36,25 @@ classdef SmoothStep < Interpolant
                 %
                 % The scalar equations for this would be:
                 %   p(x)   = ax3 + bx2 + cx + d
-                %   p'(-1) = 3a - 2b + c
-                %   p'(1)  = 3a + 2b + c
-                %   p(-1)  = -a + b - c + d 
-                %   p(1)   =  a + b + c + d
+                %   p'(-1) = 3a - 2b + c        ... vp_l
+                %   p'(1)  = 3a + 2b + c        ... vp_r
+                %   p(-1)  = -a + b - c + d     ... v_l
+                %   p(1)   =  a + b + c + d     ... v_r
                 %
                 % Zero derivatives at the boundaries already gives us:
                 %   b      = 0
                 %   c      = -3a
                 %   d      = (p(1) + p(-1))/2
-                %   a      = (d - p(1))/2
+                %   a      = (d - p(1))/2 
+
+                % Compute the polynomial  terms
+                x_in2    = times(x_in, x_in);
+                x_in3    = times(x_in, x_in2);
+
+                ext_dims = length(Obj.op_dims);
+                x_vec    = shiftdim([x_in3, x_in2, x_in, 1], 1-ext_dims);
+                val      = dx_out * sum(x_vec .* ...
+                            Obj.coeffs);
             end
         end
     % end methods

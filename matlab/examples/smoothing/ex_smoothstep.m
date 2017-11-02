@@ -1,6 +1,7 @@
 disp('Using of Barycentric-Lagrange Interpolant for smoothing');
-step_width      = 10000;
 % [fun, dfun, bkpts] = getTestFHandle(1, 1, 'd'); 
+
+step_width      = 10000;
 % fun             = @(x) tanh(step_width*x);
 % dfun            = @(x) step_width*(1 - tanh(step_width*x).^2);
 
