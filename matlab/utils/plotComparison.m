@@ -31,7 +31,7 @@ function success = plotComparison(axis_labels, ref_pts_or_individual_refs, varar
 %       ts = linspace(0, 1, 100);
 %       xs = sin(2*pi*ts);
 %       ys = cos(2*pi*ts);
-%       plotComparison({'time (s)', 'v(t)'}, ts, xs, ys, 'x', 'y');
+%       plotComparison({'time (s)', 'v(t)'}, {ts}, xs, ys, 'x', 'y');
 %
 %       Multi-Variate...
 %       xs       = linspace(0, 1, 99);
@@ -47,10 +47,6 @@ function success = plotComparison(axis_labels, ref_pts_or_individual_refs, varar
 %       yt = linspace(0, 2, 101);
 %       ys = cos(2*pi*x);
 %       plotComparison({'time (s)', 'v(t)'}, [], xt, yt, xs, ys, 'x', 'y');
-%
-%   TODO: Add the functionality to treat the first data set as a baseline and
-%   then interpolate the rest at the corresponding values (maybe, not sure how
-%   this can be done)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     success = 0; % Look at the pessimism
