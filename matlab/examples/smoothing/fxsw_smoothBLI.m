@@ -16,6 +16,12 @@ args{4}         = 'chebyshev';
 
 dcont_bounds    = {args{2}{1}(2:3)};
 
+dargs           = defaultInterpolantArgs(1);
+dargs{3}(:)     = 5;
+dargs{4}        = 'chebyshev';
+sp_bli          = BLI(fun, dargs{:});
+sp_bli.plotChebCoeffs();
+
 disp('Instantiating Smooth BLI.')
 % Pass in argument for smoothing
 bl_interpolant  = PiecewiseBLI(fun, args{:}, false);
@@ -36,6 +42,7 @@ hod_interpolant = PiecewiseBLI(fun, hod_args{:}, true);
 % hod_interpolant.plotChebCoeffs(2);
 
 n_test_pts      = 1000;
-bounds          = args{2};
-compareIObjs(n_test_pts, dcont_bounds, fun, bl_interpolant, 'SMOOTH-BLI', ...
-    hod_interpolant, 'SPLINE-BLI');
+% bounds          = args{2};
+bounds          = {[-0.01; 0.05]};
+[er, sp, plt]   = compareIObjs(n_test_pts, bounds, fun, hod_interpolant, 'Spline-BLI', ...
+    bl_interpolant, 'Smooth-Step');
