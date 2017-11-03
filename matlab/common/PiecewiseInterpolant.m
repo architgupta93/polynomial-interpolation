@@ -306,12 +306,12 @@ classdef PiecewiseInterpolant < SaveLoad
 
             % See if right derivative needs to be matched
             if (pc_idx < length(Obj.m_interp))
-                r_der = Obj.m_interp{pc_idx+1}.firstDerivativeAtPt()
+                r_der = Obj.m_interp{pc_idx+1}.firstDerivativeAtPt();
             end
 
             % See if left derivative needs to be matched
             if (pc_idx > 1)
-                l_der = Obj.m_interp{pc_idx-1}.firstDerivativeAtPt(1)
+                l_der = Obj.m_interp{pc_idx-1}.firstDerivativeAtPt(1);
             end
 
             % Match the specified derivatives
