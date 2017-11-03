@@ -17,10 +17,11 @@ args{4}         = 'chebyshev';
 dcont_bounds    = {args{2}{1}(2:3)};
 
 dargs           = defaultInterpolantArgs(1);
-dargs{3}(:)     = 5;
+dargs{3}(:)     = 8;
 dargs{4}        = 'chebyshev';
 sp_bli          = BLI(fun, dargs{:});
 sp_bli.plotChebCoeffs();
+[er, sp, plt]   = compareIObjs(n_test_pts, {[-1.0, 1.0]}, fun, sp_bli, 'BLI');
 
 disp('Instantiating Smooth BLI.')
 % Pass in argument for smoothing
