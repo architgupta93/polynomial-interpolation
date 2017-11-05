@@ -8,10 +8,12 @@ classdef SmoothStep < Interpolant
 
     methods (Access = public)
         function Obj = SmoothStep(f_vals, in_dims, bounds, order, i_type_or_x_vals)
-        % function Obj = Smooth(f_vals, in_dims, bounds, order, i_type_or_x_vals)
+        % function Obj = SmoothStep(f_vals, in_dims, bounds, order, i_type_or_x_vals)
         % Class constructor
             Obj = Obj@Interpolant(f_vals, in_dims, bounds, order, ...
                 i_type_or_x_vals);
+            % TODO: Replace the argument list with varargin to support the use
+            % of Save/Load functionality in Octave
 
             % The domain is [-1, 1]; rescaling the actual domain to this has
             % already been handled above.
