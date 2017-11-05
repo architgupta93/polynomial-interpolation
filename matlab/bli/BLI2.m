@@ -28,15 +28,15 @@ classdef BLI2 < Interpolant
 
         function [val, der] = computeWithDer(Obj, x_in)
             if (nargout > 1)
-                der = zeros([Obj.op_dims, Obj.in_dims]);
-                [i_nuvals, d_nuvals] = Obj.nu_pols.computeWithDer(x_in(2));
+                der                          = zeros([Obj.op_dims, Obj.in_dims]);
+                [i_nuvals, d_nuvals]         = Obj.nu_pols.computeWithDer(x_in(2));
                 [val, der(Obj.colons{:}, 1)] = Obj.BLI_fit.computeWithDer(x_in(1), i_nuvals);
-                der(Obj.colons{:}, 2) = Obj.BLI_fit.computeWithDer(x_in(1), d_nuvals);
-
+                der(Obj.colons{:}, 2)        = Obj.BLI_fit.computeWithDer(x_in(1), d_nuvals);
                 return;
             end
-                val = Obj.BLI_fit.computeWithDer(x_in(1), ...
-                    Obj.nu_pols.computeWithDer(x_in(2)));
+
+            val = Obj.BLI_fit.computeWithDer(x_in(1), ...
+                Obj.nu_pols.computeWithDer(x_in(2)));
         end
 
         function der = secondDerivative(Obj, x_in)
