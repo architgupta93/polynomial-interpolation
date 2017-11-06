@@ -1,0 +1,4 @@
+>> fx_cheb_series not working at the moment. Calling amateur__DCT needs to be
+>> resolved so that it works for both 1 and 2 dimensions.
+
+>> ChebSeries class still refers to the wts field which does not exist anymore

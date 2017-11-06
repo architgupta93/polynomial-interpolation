@@ -17,7 +17,7 @@ classdef BLI3 < Interpolant
             end
 
             % TODO: We should probably be using Obj.colons here somewhere
-            g_nu = zeros(Obj.op_dims, Obj.i_pts.n_pts(1), ...
+            coeffs_2d = zeros(Obj.op_dims, Obj.i_pts.n_pts(1), ...
                 Obj.i_pts.n_pts(2), Obj.i_pts.n_pts(3));
             
             for p_i = 1:Obj.i_pts.n_pts(3)
@@ -27,12 +27,12 @@ classdef BLI3 < Interpolant
                         varargin{end});
                     %   ^^ This is i_type_or_x_vals
 
-                    g_nu(:, :, p_j, p_i) = BLI_fit.nu_vals;
+                    coeffs_2d(:, :, p_j, p_i) = BLI_fit.coeffs;
                 end
             end
 
             Obj.BLI_fit = BLI_fit;
-            Obj.nu_pols = BLI2(g_nu, 2, {Obj.bounds{2}, Obj.bounds{3}}, ...
+            Obj.nu_pols = BLI2(coeffs_2d, 2, {Obj.bounds{2}, Obj.bounds{3}}, ...
                 Obj.order(1, 2:3), varargin{end});
         end
         
