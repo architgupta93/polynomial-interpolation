@@ -67,7 +67,11 @@ function compareIDers(n_tpts_seed, bounds, df_obj, ip_obj, ip_label, varargin)
     end
 
     n_in_dims = ip_obj.in_dims;
-    n_op_dims = size(df_handle(zeros(n_in_dims, 1)), 1);
+    op_dims   = size(df_handle(zeros(n_in_dims, 1)));
+    if (op_dims(end) ~= n_in_dims)
+        error(['Derivative does not have the same number of dimensions as', ...
+            'the number of input arguments. Aborting'])
+    end
 
     % Generating a set of test points which does not have the same number of
     % points in every dimension. This in itself could be used to find out some
@@ -85,19 +89,19 @@ function compareIDers(n_tpts_seed, bounds, df_obj, ip_obj, ip_label, varargin)
     n_test_cases = test_obj.getNPts();
 
     ip_evals     = cell(n_interpolants, 1);
-    [ip_evals{:}]  = deal(zeros([n_op_dims n_in_dims n_test_pts]));
-    df_evals     = zeros([n_op_dims n_in_dims n_test_pts]);
+    [ip_evals{:}]  = deal(zeros([op_dims n_test_pts]));
+    df_evals     = zeros([op_dims n_test_pts]);
 
-    colons       = cell( size(n_op_dims) );
+    colons       = cell( size(op_dims) );
     [colons{:}]  = deal(':');
 
     fprintf(2, 'Testing derivatives with %d sample points.\n', n_test_cases); 
     sub = zeros(n_in_dims, 1);
     for t_i = 1:n_test_cases
         [x_in, sub] = test_obj.getPtAt(t_i);
-        df_evals(colons{:}, :, sub{:}) = df_handle( x_in );
+        df_evals(colons{:}, sub{:}) = df_handle( x_in );
         for ip = 1:n_interpolants
-            ip_evals{ip}(colons{:}, :, sub{:}) = ip_handles{ip}( x_in );
+            ip_evals{ip}(colons{:}, sub{:}) = ip_handles{ip}( x_in );
         end
     end
 
@@ -117,23 +121,36 @@ function compareIDers(n_tpts_seed, bounds, df_obj, ip_obj, ip_label, varargin)
         s_pts{d_i} = test_obj.getPts(d_i);
     end
 
-    index_to_plot = cell( length(n_op_dims), 1 );
-    for p_i = 1 : length( n_op_dims)
-        %index_to_plot{p_i} = randi([1 n_op_dims(p_i)]);
+    n_op_dims     = length(op_dims) - 1;
+    index_to_plot = cell(n_op_dims, 1);
+    for p_i = 1 : n_op_dims     % Leaving one entry as it  corresponds to
+                                % the input dimensions
+        % Pick one dimension randomly
+        %index_to_plot{p_i} = randi([1 op_dims(p_i)]);
+
+        % Keep it simple, just plot the first one
         index_to_plot{p_i} = 1;
     end
 
     if ( n_in_dims == 1)
         fig_handle = plotComparison({}, s_pts, df_evals, ip_evals{:}, 'Baseline', ip_labels{:});
     elseif ( n_in_dims == 2 )
-        fprintf(2, 'Plotting dim: %d, df_dx\n', cell2mat(index_to_plot));
+        % Assign the two derivatives to individual cell arrays for plotting
         ip_d_dim1 = cell(n_interpolants, 1);
-        fig_handle_dim1 = plotComparison({}, s_pts, df_evals(index_to_plot{:}, 1, :, :), ...
-            ip_d_dim2{:}, 'Baseline', ip_labels);
+        ip_d_dim2 = cell(n_interpolants, 1);
+        for ip = 1:n_interpolants
+            ip_d_dim1{ip} = ip_evals{ip}(index_to_plot{:}, 1, :, :);
+            ip_d_dim2{ip} = ip_evals{ip}(index_to_plot{:}, 2, :, :);
+        end
 
+        fprintf(2, 'Plotting dim: %d, df_dx\n', cell2mat(index_to_plot));
+        fig_handle_dim1 = plotComparison({}, s_pts, df_evals(index_to_plot{:}, 1, :, :), ...
+            ip_d_dim1{:}, 'Baseline', ip_labels);
+
+        fprintf(2, 'Plotting dim: %d, df_dy\n', cell2mat(index_to_plot));
         fig_handle_dim2 = plotComparison({}, s_pts, df_evals(index_to_plot{:}, 2, :, :), ...
             ip_d_dim2{:}, 'Baseline', ip_labels);
     else
-        fprintf(2, 'Too many dimensions for plotting\n');
+        warning('Too many dimensions for plotting derivative error! Aborting');
     end
 end
