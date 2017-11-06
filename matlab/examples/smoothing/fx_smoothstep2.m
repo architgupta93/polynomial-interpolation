@@ -10,6 +10,7 @@ dfun        = @(x) [(sign(x(1,:).*x(2,:)) .* x(2,:) .* tanh(step_width*(x(1,:).*
 
 disp('Generating arguments for the interpolant.');
 args        = defaultInterpolantArgs(2);
+args{4}     = 'chebyshev';
 
 disp('Instantiating 2D SmoothStep.');
 ss_itp      = SmoothStep2(fun, args{:});
