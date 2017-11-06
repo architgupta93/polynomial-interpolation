@@ -15,8 +15,10 @@ ss_interpolant = SmoothStep(fun, args{:});
 % Get the derivatives
 l_derv         = dfun(args{2}{1}(1));
 r_derv         = dfun(args{2}{1}(end));
+disp('Fitting derivatives at the edges.')
 coeffs         = ss_interpolant.fit(l_derv, r_derv)
 
+disp('Testing interpolant.')
 n_test_pts     = 1000;
 bounds         = args{2};
 compareIObjs(n_test_pts, bounds, fun, ss_interpolant);

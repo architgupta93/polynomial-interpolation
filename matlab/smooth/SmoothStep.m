@@ -65,7 +65,10 @@ classdef SmoothStep < Interpolant
             end
         end
 
-        function [val, der] = computeWithDer(Obj, x_in)
+        function [val, der] = computeWithDer(Obj, x_in, coeffs)
+            if (nargin < 3)
+                coeffs = Obj.coeffs;
+            end
             n_pts          = Obj.getNPts();
             der            = zeros(Obj.op_dims);
             [x_in, dx_out] = Obj.i_pts.rescaleShiftInput(x_in);
@@ -81,7 +84,7 @@ classdef SmoothStep < Interpolant
 
                 ext_dims = length(Obj.op_dims);
                 x_vec    = shiftdim([x_in3, x_in2, x_in, 1], 1-ext_dims);
-                val      = sum(x_vec .* Obj.coeffs, ext_dims+1);
+                val      = sum(x_vec .* coeffs, ext_dims+1);
             end
         end
 
