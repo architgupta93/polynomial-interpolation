@@ -73,6 +73,7 @@ function success = plotComparison(axis_labels, ref_pts_or_individual_refs, varar
     data_vals   = cell(n_overlays, 1);
 
     for ol = 1:n_overlays
+        % Remove the unnecessary singleton dimensions
         data_vals{ol} = squeeze(varargin{ol});
     end
 

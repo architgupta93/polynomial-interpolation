@@ -70,7 +70,7 @@ function compareIDers(n_tpts_seed, bounds, df_obj, ip_obj, ip_label, varargin)
     op_dims   = size(df_handle(zeros(n_in_dims, 1)));
     if (op_dims(end) ~= n_in_dims)
         error(['Derivative does not have the same number of dimensions as', ...
-            'the number of input arguments. Aborting'])
+            ' the number of input arguments. Aborting'])
     end
 
     % Generating a set of test points which does not have the same number of
@@ -145,11 +145,36 @@ function compareIDers(n_tpts_seed, bounds, df_obj, ip_obj, ip_label, varargin)
 
         fprintf(2, 'Plotting dim: %d, df_dx\n', cell2mat(index_to_plot));
         fig_handle_dim1 = plotComparison({}, s_pts, df_evals(index_to_plot{:}, 1, :, :), ...
-            ip_d_dim1{:}, 'Baseline', ip_labels);
+            ip_d_dim1{:}, 'Baseline', ip_labels{:});
 
         fprintf(2, 'Plotting dim: %d, df_dy\n', cell2mat(index_to_plot));
         fig_handle_dim2 = plotComparison({}, s_pts, df_evals(index_to_plot{:}, 2, :, :), ...
-            ip_d_dim2{:}, 'Baseline', ip_labels);
+            ip_d_dim2{:}, 'Baseline', ip_labels{:});
+    elseif (n_in_dims == 3)
+        % Assign the three derivatives to individual cell arrays for plotting
+        ip_d_dim1 = cell(n_interpolants, 1);
+        ip_d_dim2 = cell(n_interpolants, 1);
+        ip_d_dim3 = cell(n_interpolants, 1);
+        for ip = 1:n_interpolants
+            ip_d_dim1{ip} = ip_evals{ip}(index_to_plot{:}, 1, :, :, :);
+            ip_d_dim2{ip} = ip_evals{ip}(index_to_plot{:}, 2, :, :, :);
+            ip_d_dim3{ip} = ip_evals{ip}(index_to_plot{:}, 3, :, :, :);
+        end
+
+        fprintf(2, 'Plotting dim: %d, df_dx\n', cell2mat(index_to_plot));
+        fig_handle_dim1 = plotComparison({}, s_pts, df_evals( ...
+            index_to_plot{:}, 1, :, :, :), ip_d_dim1{:}, 'Baseline', ...
+            ip_labels{:});
+
+        fprintf(2, 'Plotting dim: %d, df_dy\n', cell2mat(index_to_plot));
+        fig_handle_dim2 = plotComparison({}, s_pts, df_evals( ...
+            index_to_plot{:}, 2, :, :, :), ip_d_dim2{:}, 'Baseline', ...
+            ip_labels{:});
+
+        fprintf(2, 'Plotting dim: %d, df_dz\n', cell2mat(index_to_plot));
+        fig_handle_dim3 = plotComparison({}, s_pts, df_evals( ...
+            index_to_plot{:}, 3, :, :, :), ip_d_dim3{:}, 'Baseline', ...
+            ip_labels{:});
     else
         warning('Too many dimensions for plotting derivative error! Aborting');
     end
