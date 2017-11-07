@@ -3,7 +3,6 @@ classdef BLI3 < Interpolant
 % Implementation of a 3D Barycentric Lagrange Interpolant
     properties
         BLI_fit = BLI();
-        coeffs = BLI2();
     end
 
     methods
