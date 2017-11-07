@@ -97,13 +97,17 @@
             % vector initialization contributes one dimension
             pj_vals  = shiftdim([djl_3, djl_2, djl_1, 1], -ext_dims);
 
+            % TODO: If speed is getting in the way, try working with this, it
+            % may be faster
+            %{
             % The next dimension (I) needs to be shifted by 1 less value, i.e.,
             % ext_dims. To account for the row vector initialization, we substract 1
+
             pi_vals  = shiftdim([dil_3, dil_2, dil_1, 1], 1-ext_dims);
             pij_mat  = pi_vals .* pj_vals;
             val      = sum(sum(pij_mat .* Obj.coeffs(Obj.colons{:},:,:,i,j), 1+ext_dims), 2+ext_dims);
+            %}
 
-            %{
             cubicCoeffs3 = sum(pj_vals .* Obj.coeffs(Obj.colons{:},1,:,i,j), 2+ext_dims);
             cubicCoeffs2 = sum(pj_vals .* Obj.coeffs(Obj.colons{:},2,:,i,j), 2+ext_dims);
             cubicCoeffs1 = sum(pj_vals .* Obj.coeffs(Obj.colons{:},3,:,i,j), 2+ext_dims);
@@ -113,10 +117,11 @@
                   cubicCoeffs2*dil_2 + ...
                   cubicCoeffs1*dil_1 + ...
                   cubicCoeffs0;
-            %}
 
             if (nargout > 1)
                 der = zeros([Obj.op_dims Obj.in_dims]);
+                dpj_vals  = shiftdim([3*djl_2, 2*djl_1, 1], -ext_dims);
+                dpi_vals  = shiftdim([3*dil_2, 2*dil_1, 1], 1-ext_dims);
                 der(Obj.colons{:}, 1) = dx_out(1) * ( ...
                                         3*cubicCoeffs3*dil_2 + ...
                                         2*cubicCoeffs2*dil_1 + ...
