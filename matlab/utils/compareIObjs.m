@@ -1,7 +1,7 @@
 function [est_err, speedup, err_plt] = compareIObjs(n_tpts_seed, bounds, ...
-    f_obj, ip_obj, ip_label, varargin)
+    f_obj, varargin)
 % function [est_err, speedup] = compareIObjs(n_tpts_seed, bounds, ...
-%    f_obj, ip_obj, ip_label, varargin) 
+%    f_obj, varargin) 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Compare the error both numerically and by plots between a function handle and
@@ -18,14 +18,15 @@ function [est_err, speedup, err_plt] = compareIObjs(n_tpts_seed, bounds, ...
 %   f_obj: FUNCTION HANDLE. Function handle for evaluating the function to
 %       which the polynomial interpolants were fit
 %
+%   VARARGIN: A list of other interpolants to compare. This list should be in the form
+%       {<ip_obj1>, <ip_label1>, ..., <ip_objn>, <ip_labeln>}, where ip_obj<i> and
+%       ip_label<i> are:
+%
 %   ip_obj: INTERPOLANT. Atleast one interpolant should be supplied for
 %       comparing the derivative of the interpolant with the original function.
 %
 %   ip_label: STRING (optional if only one interpolant is supplied). A label
 %       string with which the interpolant will be tagged,
-%
-%   VARARGIN: A list of other interpolants to compare. This list should be in the form
-%       {<ip_obj1>, <ip_label1>, ..., <ip_objn>, <ip_labeln>}
 %
 % OUTPUT(s):
 %   EST_ERR: estimated error between the function nad the interpolant objects
@@ -46,8 +47,14 @@ function [est_err, speedup, err_plt] = compareIObjs(n_tpts_seed, bounds, ...
 %   lg_ip     = Lagrange(fx);
 %   n_tpts    = 1000;
 %   bounds    = [-1; 1];
-%   [err, sp] = compareIObjs(n_tpts, bounds, f_dx, bli_ip, 'BLI', spline_ip, ...
+%   [err, sp] = compareIObjs(n_tpts, bounds, fx, bli_ip, 'BLI', spline_ip, ...
 %       'Spline', lg_ip, 'Lagrange');
+%
+% Example: This can also be used to just analyze a single object
+%   fx  = @(x) sin(2*pi*x);
+%   n_tpts = 100;
+%   bounds = [-1; 1];
+%   compareIObjs(n_tpts, bounds, fx);
 %
 % Author: Archit Gupta, March 03, 2017
 % Updated: October 24, 2017 (Updated documentation and added the functionality
@@ -55,10 +62,15 @@ function [est_err, speedup, err_plt] = compareIObjs(n_tpts_seed, bounds, ...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     multiple_interpolants = (nargin > 5); 
+    no_interpolants       = (nargin == 3);
 
     if ( nargin < 5 )
         % Just comparing function against one interpolant and label not specified
-        ip_label = 'Interpolant';
+        if (no_interpolants)
+            ip_label = {};
+        else
+            ip_label = {'Interpolant'};
+        end
     end
 
     % Check that an EVEN number of entries are present in VARARGIN
@@ -66,21 +78,18 @@ function [est_err, speedup, err_plt] = compareIObjs(n_tpts_seed, bounds, ...
         error('Expecting an even number of Interpolant/Label entries!')
     end
 
-    n_interpolants = 1 + length(varargin)/2;
+    n_interpolants = length(varargin)/2;
     ip_handles     = cell(n_interpolants, 1);
     ip_labels      = cell(n_interpolants, 1);
 
-    % Put the first one in
-    ip_handles{1}  = getEvalHandle(ip_obj);
-    ip_labels{1}   = ip_label;
     f_handle       = getEvalHandle(f_obj);
-
-    for ip = 2:n_interpolants
+    for ip = 1:n_interpolants
         ip_handles{ip} = getEvalHandle(varargin{ip*2-3});
         ip_labels{ip}  = varargin{ip*2 - 2};
     end
 
-    n_in_dims = ip_obj.in_dims;
+
+    n_in_dims = size(bounds, 2);
     n_op_dims = size(f_handle(zeros(n_in_dims, 1)), 1);
 
     % [TODO]: There is a bug in the code when we are asking for just 1 sample
