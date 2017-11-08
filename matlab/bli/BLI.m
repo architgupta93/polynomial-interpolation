@@ -1,7 +1,6 @@
 classdef BLI < Interpolant
     properties (SetAccess = protected)
         % Store the coefficients for the numerator and denominator separately
-        nu_vals = []; % Coefficients for the numerator
         de_vals = []; % Coefficients for the denominator
     end
 
@@ -15,13 +14,13 @@ classdef BLI < Interpolant
             end
 
             if ( iscell(varargin{end}) )
-                Obj.wts = tensorProduct(Obj.wts);
+                bli_wts = tensorProduct(Obj.coeffs);
             else
-                Obj.wts = tensorProduct(Obj.i_pts.getBLIWeights());
+                bli_wts = tensorProduct(Obj.i_pts.getBLIWeights());
             end
-            diff_dims = ndims(Obj.wts) - ndims(Obj.f_vals); 
-            Obj.nu_vals = times(Obj.f_vals, shiftdim(Obj.wts', diff_dims));
-            Obj.de_vals = Obj.wts';
+            diff_dims = ndims(Obj.coeffs) - ndims(Obj.f_vals); 
+            Obj.coeffs = times(Obj.f_vals, shiftdim(bli_wts', diff_dims));
+            Obj.de_vals = bli_wts';
 
             Obj.extrap_slope = zeros([Obj.op_dims 2]);
             Obj.extrap_slope(Obj.colons{:}, 1) = Obj.firstDerivativeAtPt(1);
@@ -39,14 +38,16 @@ classdef BLI < Interpolant
             exclude_pts(pt_index) = 0;  % Removing this entry from the multiplication... NOTE HERE:
                                         % Quite sure that all the unnecessary copying would lead to more resource
                                         % consumption than multiplication of 1 row by 0 and subsequent addition
-            diff_dims = ndims(exclude_pts) - ndims(Obj.nu_vals); 
+            diff_dims = ndims(exclude_pts) - ndims(Obj.coeffs); 
 
-            der = ( -times( Obj.f_vals(:, pt_index), Obj.de_vals * exclude_pts ) + ...
-               sum(times(Obj.nu_vals, shiftdim(exclude_pts', diff_dims)), ndims(Obj.nu_vals)) ) / Obj.de_vals(pt_index); 
+            [~, dx_out] = Obj.i_pts.rescaleShiftInput(this_pt);
+
+            der = dx_out * ( -times( Obj.f_vals(:, pt_index), Obj.de_vals * exclude_pts ) + ...
+               sum(times(Obj.coeffs, shiftdim(exclude_pts', diff_dims)), ndims(Obj.coeffs)) ) / Obj.de_vals(pt_index); 
 
             % Previous implementation: TODO If anything goes wrong, uncomment this
             %exclude_pts = 1 ./ (this_pt - [ all_pts(1:pt_index-1, 1); all_pts(pt_index+1:end, 1) ]);
-            % exclude_nu = [Obj.nu_vals(:, 1:pt_index-1) Obj.nu_vals(:, pt_index+1:end)];
+            % exclude_nu = [Obj.coeffs(:, 1:pt_index-1) Obj.coeffs(:, pt_index+1:end)];
             % exclude_de = [Obj.de_vals(1, 1:pt_index-1) Obj.de_vals(1, pt_index+1:end)];
             %der = ( - ( Obj.f_vals(:, pt_index) * exclude_de * exclude_pts ) + ...
             %   (exclude_nu * exclude_pts) ) / Obj.de_vals(pt_index); 
@@ -64,7 +65,7 @@ classdef BLI < Interpolant
             %}
             [x_in, dx_out] = Obj.i_pts.rescaleShiftInput(x_in);
             if (nargin < 3)
-                coeffs = Obj.nu_vals;
+                coeffs = Obj.coeffs;
             end
 
             x_vals = Obj.i_pts.pts{1}; 
@@ -142,10 +143,10 @@ classdef BLI < Interpolant
             % fprintf(2, 'Loading BLI Add-ons...\n');
             % END DUBUG
             load([filename, '.bliao'], ... 
-                'nu_vals', ...
+                'coeffs', ...
                 'de_vals', ...
                 Obj.load_opts{:});
-            Obj.nu_vals = nu_vals;
+            Obj.coeffs = coeffs;
             Obj.de_vals = de_vals;
         end
 
@@ -157,10 +158,10 @@ classdef BLI < Interpolant
             % DEBUG
             % fprintf(2, 'Saving BLI Add-ons...\n');
             % END DEBUG
-            nu_vals = Obj.nu_vals;
+            coeffs = Obj.coeffs;
             de_vals = Obj.de_vals;
             save([filename, '.bliao'], ...
-                'nu_vals', ...
+                'coeffs', ...
                 'de_vals', ...
                 Obj.save_opts{:});
         end

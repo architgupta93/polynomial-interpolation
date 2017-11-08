@@ -3,7 +3,7 @@ classdef SplineInterpolant < Interpolant
 % This class provides class member called "coeffs" which is used for storing Spline interpolants in both the classes.
 % The class also provides a common interface for defining Save and Load methods for the class
     properties (GetAccess = public, SetAccess = protected)
-        coeffs = [];    
+
     end
 
     methods (Access = public)

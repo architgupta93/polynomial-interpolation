@@ -45,7 +45,7 @@ function [x_dct, T] = amateur__DCT1(x, mode)
     end
 
     if (s_x(1) == 1)
-        error(['Either row vector was given or signal length < 2\n', ...
+        error(['Either row vector was given or signal length < 2. ', ...
             'DCT1 not defined!']);
     end
 

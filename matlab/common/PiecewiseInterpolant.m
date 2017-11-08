@@ -59,9 +59,19 @@ classdef PiecewiseInterpolant < SaveLoad
             if (nargin > 1)
                 for interp_in = 1 : prod(Obj.n_pieces)
                     % This should now have all the required fields
-                    l_bounds    = {Obj.getLocalBounds(interp_in)};
+                    l_bounds                = {Obj.getLocalBounds(interp_in)};
                     Obj.m_interp{interp_in} = Obj.acc_han(f_handle, Obj.in_dims, ...
                         l_bounds, Obj.order, Obj.i_type);
+                    % After the interpolant has been fit, smoothing needs to be
+                    % done by supplying the derivative and value for the
+                    % adjoining interpolants
+                    % TODO: This needs to be changed for a generalized spline
+                    if (Obj.is_smooth && interp_in > 1)
+                        corner_slope = Obj.m_interp{interp_in}.firstDerivativeAtPt();
+                        fprintf('DEBUG: Fitting corner slope: %d\n', ...
+                            corner_slope);
+                        Obj.m_interp{interp_in-1}.fit([], corner_slope);
+                    end
                 end
             end
 
@@ -106,8 +116,8 @@ classdef PiecewiseInterpolant < SaveLoad
             elseif ( prod(size(qty) == size(Obj.n_pieces)) )
                 o_qty = qty;
             else
-                error(['ERROR: Supplied vector for quantity', ...
-                    'inappropriately sized w.r.t. n_pieces']);
+                error(['ERROR: Supplied vector for quantity inappropriately sized w.r.t. n_pieces.', ...
+                    ' Expecting same size as n_pieces']);
             end
         end
 
@@ -123,12 +133,6 @@ classdef PiecewiseInterpolant < SaveLoad
             else
                 val = Obj.m_interp{pc_index{:}}.computeWithDer(x_in);
             end
-        end
-
-        function clearInterpolants(Obj)
-            % Clear the contents of m_interp so that a new interpolant can be
-            % put in
-            Obj.m_interp = {};
         end
 
         function setAccessHandle(Obj, access_handle, f_handle)
@@ -265,9 +269,53 @@ classdef PiecewiseInterpolant < SaveLoad
             end
 
             if (nargin > 6)
-                Obj.is_smooth = true;
+                Obj.is_smooth = is_smooth;
                 % Otherwise, use the default value, which is FALSE
             end
+        end
+
+        function clearAllInterpolants(Obj)
+            % Clear the contents of m_interp so that a new interpolant can be
+            % put in
+            Obj.m_interp = {};
+        end
+
+        function setInterpolant(Obj, pc_idx, access_handle, f_handle, ...
+            bounds, order, i_type)
+        % function setInterpolant(Obj, pc_idx, access_handle, f_handle, ...
+        %     bounds, order, i_type)
+        % Replace an existing interpolant with one of your choice. Optionally,
+        % you can also pick the parameters for this new interpolant
+            if (nargin < 7)
+                i_type = Obj.i_type;
+                if (nargin < 6)
+                    order = Obj.order;
+                    if (nargin < 5)
+                        bounds = {Obj.getLocalBounds(pc_idx)};
+                    end
+                end
+            end
+
+            Obj.m_interp{pc_idx} = access_handle(f_handle, Obj.in_dims, bounds, ...
+                order, i_type);
+        end
+
+        function ironOut(Obj, pc_idx)
+            r_der = [];
+            l_der = [];
+
+            % See if right derivative needs to be matched
+            if (pc_idx < length(Obj.m_interp))
+                r_der = Obj.m_interp{pc_idx+1}.firstDerivativeAtPt();
+            end
+
+            % See if left derivative needs to be matched
+            if (pc_idx > 1)
+                l_der = Obj.m_interp{pc_idx-1}.firstDerivativeAtPt(1);
+            end
+
+            % Match the specified derivatives
+            Obj.m_interp{pc_idx}.fit(l_der, r_der);
         end
 
         function der = secondDerivative(Obj, x_in)

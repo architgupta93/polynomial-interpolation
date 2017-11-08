@@ -28,11 +28,11 @@ classdef Interpolant < SaveLoad
         % exact nature of this depends on the interpolant
         order = [];
 
-        % WEIGHTS: All the interpolants are 'LINEAR', in the sense that,
+        % COEFFICIENTS: All the interpolants are 'LINEAR', in the sense that,
         % scaling the underlying function's sample values scales the
         % interpolant and adding two functions leads to addition of the
         % interpolant. So, it can be defined in terms of some weights.
-        wts = [];
+        coeffs = [];
 
         % SAMPLE POINTS: Points at which the sample values were provided.
         i_pts = InterpolationPoints();
@@ -131,7 +131,7 @@ classdef Interpolant < SaveLoad
                 elseif ( iscell(i_type_or_x_vals) )
                     Obj.i_pts = InterpolationPoints(1, order, bounds, ...
                         i_type_or_x_vals)
-                    Obj.wts = wts;
+                    Obj.coeffs = coeffs;
 
                 else
                     error('ERROR: Supplied "type": %s Invalid!\n', ...
@@ -168,8 +168,8 @@ classdef Interpolant < SaveLoad
             Obj.order = order;
         end
 
-        function wts = getWts(Obj)
-            wts = Obj.wts;
+        function coeffs = getWts(Obj)
+            coeffs = Obj.coeffs;
         end
 
         function n_pts = getNPts(varargin)
@@ -254,7 +254,7 @@ classdef Interpolant < SaveLoad
                 'in_dims', ...
                 'op_dims', ...
                 'order', ...
-                'wts', ...
+                'coeffs', ...
                 'bounds', ...
                 'colons', ...
                 'extrap_slope', ...
@@ -263,7 +263,7 @@ classdef Interpolant < SaveLoad
             Obj.in_dims         = in_dims;
             Obj.op_dims         = op_dims;
             Obj.order           = order;
-            Obj.wts             = wts;
+            Obj.coeffs             = coeffs;
             Obj.bounds          = bounds;
             Obj.colons          = colons;
             Obj.extrap_slope    = extrap_slope;
@@ -275,7 +275,7 @@ classdef Interpolant < SaveLoad
             in_dims         = Obj.in_dims;
             op_dims         = Obj.op_dims;         
             order           = Obj.order;
-            wts             = Obj.wts;             
+            coeffs             = Obj.coeffs;             
             bounds          = Obj.bounds;
             colons          = Obj.colons;
             extrap_slope    = Obj.extrap_slope;
@@ -284,7 +284,7 @@ classdef Interpolant < SaveLoad
                 'in_dims', ...
                 'op_dims', ...
                 'order', ...
-                'wts', ...
+                'coeffs', ...
                 'bounds', ...
                 'colons', ...
                 'extrap_slope', ...

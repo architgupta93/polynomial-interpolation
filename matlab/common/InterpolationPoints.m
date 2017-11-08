@@ -82,8 +82,13 @@ classdef InterpolationPoints < SaveLoad
 
             if (nargin > 2) % The bounds have been provided in an appropriately
                             % sized array
+
+                % Check that we have values for each dimension
                 bound_dim_check = size(bounds, 2);
-                if (bound_dim_check ~= n_in_dims)
+
+                % Check that we have exactly 2 values (left, right) pair
+                bound_lrp_check = size(bounds, 1);
+                if (bound_dim_check ~= n_in_dims || bound_lrp_check ~= 2)
                     error(['Mismatch in bounds and data ', ...
                         'dimensions. Ensure bounds = 2 x n_in_dims'])
                     return;

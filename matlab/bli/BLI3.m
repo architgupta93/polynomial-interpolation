@@ -3,7 +3,6 @@ classdef BLI3 < Interpolant
 % Implementation of a 3D Barycentric Lagrange Interpolant
     properties
         BLI_fit = BLI();
-        nu_pols = BLI2();
     end
 
     methods
@@ -17,7 +16,7 @@ classdef BLI3 < Interpolant
             end
 
             % TODO: We should probably be using Obj.colons here somewhere
-            g_nu = zeros(Obj.op_dims, Obj.i_pts.n_pts(1), ...
+            coeffs_2d = zeros(Obj.op_dims, Obj.i_pts.n_pts(1), ...
                 Obj.i_pts.n_pts(2), Obj.i_pts.n_pts(3));
             
             for p_i = 1:Obj.i_pts.n_pts(3)
@@ -27,12 +26,12 @@ classdef BLI3 < Interpolant
                         varargin{end});
                     %   ^^ This is i_type_or_x_vals
 
-                    g_nu(:, :, p_j, p_i) = BLI_fit.nu_vals;
+                    coeffs_2d(:, :, p_j, p_i) = BLI_fit.coeffs;
                 end
             end
 
             Obj.BLI_fit = BLI_fit;
-            Obj.nu_pols = BLI2(g_nu, 2, {Obj.bounds{2}, Obj.bounds{3}}, ...
+            Obj.coeffs = BLI2(coeffs_2d, 2, {Obj.bounds{2}, Obj.bounds{3}}, ...
                 Obj.order(1, 2:3), varargin{end});
         end
         
@@ -40,7 +39,7 @@ classdef BLI3 < Interpolant
         function [val, der] = computeWithDer(Obj, x_in)
             if (nargout > 1)
                 der = zeros([Obj.op_dims, Obj.in_dims]);
-                [i_nuvals, d_nuvals] = Obj.nu_pols.computeWithDer(x_in(2:3));
+                [i_nuvals, d_nuvals] = Obj.coeffs.computeWithDer(x_in(2:3));
                 [val, der(Obj.colons{:}, 1)]  = Obj.BLI_fit.computeWithDer(x_in(1), i_nuvals);
                 der(Obj.colons{:}, 2)  = Obj.BLI_fit.computeWithDer(x_in(1), ...
                     d_nuvals(Obj.colons{:}, :, 1));
@@ -50,7 +49,7 @@ classdef BLI3 < Interpolant
             end
 
             val = Obj.BLI_fit.computeWithDer(x_in(1), ...
-                Obj.nu_pols.computeWithDer(x_in(2:3)));
+                Obj.coeffs.computeWithDer(x_in(2:3)));
         end
 
         % Some other rarely used access functions
