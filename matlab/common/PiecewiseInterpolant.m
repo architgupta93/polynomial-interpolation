@@ -199,7 +199,7 @@ classdef PiecewiseInterpolant < SaveLoad
             % we would have to figure out the rest from there
             if ( strcmp(class(f_handle), 'function_handle') )
                 % Get a test value, use it to determine the output size
-                tval = f_handle(zeros(in_dims, 1));
+                tval = f_handle(zeros(Obj.in_dims, 1));
                 Obj.op_dims = g_size(tval);
             elseif ( isnumeric(f_handle) )
                 % We have some GIANT matrix that needs to be resolved. However,
@@ -217,8 +217,9 @@ classdef PiecewiseInterpolant < SaveLoad
             Obj.colons = cell(size(Obj.op_dims));
             [Obj.colons{:}] = deal(':');
 
+            bounds = varargin{3};
             if ( isa(bounds, 'cell') )
-                Obj.bounds = varargin{3};
+                Obj.bounds = bounds;
             else
                 error('Expecting a cell array for bounds, indexing each dimension in the columns');
             end
@@ -228,7 +229,7 @@ classdef PiecewiseInterpolant < SaveLoad
                 Obj.n_pieces(1, pc_index) = size( Obj.bounds{pc_index}, 1 ) - 1;
             end
 
-            if ( size(Obj.n_pieces,2) ~= in_dims )
+            if ( size(Obj.n_pieces,2) ~= Obj.in_dims )
                 fprintf(2, 'NOTE: Expect n_pieces to be a row vector\n');
                 error('Mismatch in supplied n_pieces (per dimensions) and in_dims');
             end

@@ -12,7 +12,7 @@ classdef Spline1D < SplineInterpolant
 
             if ( n_plus_1 <= 3)
                 error(['What should  do if you ask for an interpolant', ...
-                    ' based on 3 or fewer point(s)? I should quit. That's what I do!']);
+                    ' based on 3 or fewer point(s)? I should quit. That is what I do!']);
                 % If you are stuck on this error and would like to stick with 3
                 % or fewer points, try one of the interpolants under "smooth"
             else
