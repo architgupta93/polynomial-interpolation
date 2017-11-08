@@ -4,10 +4,10 @@ classdef PiecewiseBLI2 < PiecewiseInterpolant
 % This reuses most of the code from the PiecewiseInterpolant class. The only
 % significant difference is the declaration of the access handle BLI2
     methods (Access = public)
-        function Obj = PiecewiseBLI2(f_handle, n_in_dims, bounds, order, i_type)
+        function Obj = PiecewiseBLI2(varargin)
         % function Obj = PiecewiseBLI2(f_handle, n_in_dims, bounds, order, i_type)
         % Class constructor
-            Obj = Obj@PiecewiseInterpolant(f_handle, n_in_dims, bounds, order, i_type, @BLI2);
+            Obj = Obj@PiecewiseInterpolant(varargin{:}, @BLI2);
         end
     end
 end

@@ -155,8 +155,7 @@ classdef PiecewiseInterpolant < SaveLoad
     end
 
     methods (Access = public)
-        function Obj = PiecewiseInterpolant(f_handle, in_dims, bounds, ...
-            order, i_type, access_handle, smooth)
+        function Obj = PiecewiseInterpolant(varargin)
         % function Obj = PiecewiseInterpolant(f_handle, in_dims, bounds, ...
         %    order, i_type, access_handle, smooth)
         % Class constructor
@@ -172,12 +171,13 @@ classdef PiecewiseInterpolant < SaveLoad
         %   SMOOTH: [BOOL] Whether the individual polynomial interpolants
         %       should be smoothened using and overlaid interpolant.
 
-            if ( nargin == 0 )
+            if ( nargin < 2 )
                 % DEBUG
                 fprintf(2, 'Instantiating an EMPTY Piecewise Interpolant\n');
                 return;
             end
-            Obj.in_dims = in_dims;
+            f_handle    = varargin{1};
+            Obj.in_dims = varargin{2};
 
             % Either we are given a function handle and we can use it to
             % determine the dimensions of the output that the function produces
@@ -204,7 +204,7 @@ classdef PiecewiseInterpolant < SaveLoad
             [Obj.colons{:}] = deal(':');
 
             if ( isa(bounds, 'cell') )
-                Obj.bounds = bounds;
+                Obj.bounds = varargin{3};
             else
                 error('Expecting a cell array for bounds, indexing each dimension in the columns');
             end
@@ -242,7 +242,7 @@ classdef PiecewiseInterpolant < SaveLoad
             end
 
             if (nargin > 3)
-                Obj.order = Obj.matchDimsWithNPieces(order);
+                Obj.order = Obj.matchDimsWithNPieces(varargin{4});
             else
                 % Use the default value for order for each piece (each
                 % dimensiona as well) supplied in the properties (Constant)
@@ -252,7 +252,7 @@ classdef PiecewiseInterpolant < SaveLoad
             end
 
             if (nargin > 4)
-                Obj.i_type = i_type;
+                Obj.i_type = varargin{5};
             else
                 Obj.i_type = 'uniform';
                 return;
@@ -262,14 +262,14 @@ classdef PiecewiseInterpolant < SaveLoad
                 % We have the access handle to the class constructor which is an
                 % interpolant. We can use this to construct the piecewise
                 % interpolant
-                Obj.acc_han = access_handle;
+                Obj.acc_han = varargin{6};
                 Obj.populate(f_handle);
             else
                 return;
             end
 
             if (nargin > 6)
-                Obj.is_smooth = is_smooth;
+                Obj.is_smooth = varargin{7};
                 % Otherwise, use the default value, which is FALSE
             end
         end
