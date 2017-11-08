@@ -79,8 +79,8 @@ function compareIDers(n_tpts_seed, bounds, df_obj, ip_obj, ip_label, varargin)
     df_handle      = getDervHandle(df_obj);
 
     for ip = 1:n_interpolants
-        ip_handles{ip} = getDervHandle(varargin{ip*2-3});
-        ip_labels{ip}  = varargin{ip*2 - 2};
+        ip_handles{ip} = getDervHandle(varargin{ip*2-1});
+        ip_labels{ip}  = varargin{ip*2};
     end
 
     n_in_dims = size(bounds, 2);
@@ -195,4 +195,6 @@ function compareIDers(n_tpts_seed, bounds, df_obj, ip_obj, ip_label, varargin)
     else
         warning('Too many dimensions for plotting derivative error! Aborting');
     end
+
+    % TODO.. Add the functionality for getting error plots too
 end

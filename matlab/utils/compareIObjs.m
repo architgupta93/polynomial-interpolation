@@ -84,8 +84,8 @@ function [est_err, speedup, err_plt] = compareIObjs(n_tpts_seed, bounds, ...
 
     f_handle       = getEvalHandle(f_obj);
     for ip = 1:n_interpolants
-        ip_handles{ip} = getEvalHandle(varargin{ip*2-3});
-        ip_labels{ip}  = varargin{ip*2 - 2};
+        ip_handles{ip} = getEvalHandle(varargin{ip*2-1});
+        ip_labels{ip}  = varargin{ip*2};
     end
 
 
