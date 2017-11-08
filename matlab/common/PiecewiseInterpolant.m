@@ -73,6 +73,10 @@ classdef PiecewiseInterpolant < SaveLoad
                         Obj.m_interp{interp_in-1}.fit([], corner_slope);
                     end
                 end
+            else
+                for interp_in = 1 : prod(Obj.n_pieces)
+                    Obj.m_interp{interp_in} = Obj.acc_han();
+                end
             end
 
             if ( isempty(Obj.n_pieces) )
@@ -171,11 +175,21 @@ classdef PiecewiseInterpolant < SaveLoad
         %   SMOOTH: [BOOL] Whether the individual polynomial interpolants
         %       should be smoothened using and overlaid interpolant.
 
-            if ( nargin < 2 )
+            if ( nargin == 0 )
                 % DEBUG
                 fprintf(2, 'Instantiating an EMPTY Piecewise Interpolant\n');
                 return;
             end
+
+            if ( nargin == 1 )
+                % Access Handle has been provided for the interpolant pieces
+                access_handle = functions(varargin{1});
+                fprintf(2, ['Instantiating an EMPTY Piecewise Interpolant ', ...
+                    'supplied Template: ', access_handle.function, '\n']);
+                Obj.acc_han = varargin{1};
+                return;
+            end
+
             f_handle    = varargin{1};
             Obj.in_dims = varargin{2};
 
