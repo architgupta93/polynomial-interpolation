@@ -1,5 +1,5 @@
-function compareIDers(n_tpts_seed, bounds, df_obj, ip_obj, ip_label, varargin)
-% function compareIDers(n_tpts_seed, bounds, df_obj, ip_obj, ip_label, varargin)
+function compareIDers(n_tpts_seed, bounds, df_obj, varargin)
+% function compareIDers(n_tpts_seed, bounds, df_obj, varargin)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Compare the error in derivative both numerically and by plots between a
