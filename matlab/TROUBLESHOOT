@@ -2,3 +2,7 @@
 >> resolved so that it works for both 1 and 2 dimensions.
 
 >> ChebSeries class still refers to the wts field which does not exist anymore
+
+>> Most common use of the interpolation package would be to pass in a set of
+>> values, a set of points and ask for an interpolant. This is __NOT__ supported
+>> at the moment. Please put this in.
