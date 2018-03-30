@@ -11,4 +11,4 @@ sp_interpolant = Spline3D(fun, args{:});
 
 n_test_pts = 100;
 bounds     = args{2};
-compareIObjs(n_test_pts, bounds, fun, sp_interpolant);
+compareIObjs(n_test_pts, bounds, fun, sp_interpolant, 'Spline 3D');
