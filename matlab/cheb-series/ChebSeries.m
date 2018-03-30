@@ -30,7 +30,7 @@ classdef ChebSeries < Interpolant
             % doesn't make any sense
 
             % Get Chebyshev series coefficients
-            Obj.wts = Obj.i_pts.getSeriesCoeffs(Obj.f_vals);
+            Obj.coeffs = Obj.i_pts.getSeriesCoeffs(Obj.f_vals');
         end
 
         function pts = generate(Obj, order)
@@ -40,11 +40,11 @@ classdef ChebSeries < Interpolant
         function plot(Obj)
             figure();
             if (Obj.i_pts.in_dims == 1)
-                semilogy(abs(Obj.wts), 'LineWidth', 2.0);
+                semilogy(abs(Obj.coeffs), 'LineWidth', 2.0);
                 xlabel('Coefficient Index (n)');
                 ylabel('Coefficient Value (log scale)');
             elseif (Obj.i_pts.in_dims == 2)
-                surf( abs(Obj.wts) + 1e-16 );
+                surf( abs(Obj.coeffs) + 1e-16 );
                 xlabel('Coeff Index (x)');
                 ylabel('Coeff Index (y)');
                 zlabel('Coeff Value (log scale)');
@@ -59,7 +59,7 @@ classdef ChebSeries < Interpolant
 
         function [val, der] = computeWithDer(Obj, x_in)
             y_out = Obj.i_pts.evaluatePolynomial(x_in);    
-            val = bsxfun( @times, Obj.wts, tensorProduct(y_out) );
+            val = bsxfun( @times, Obj.coeffs, tensorProduct(y_out) );
             for d_i = 1:Obj.in_dims
                 val = squeeze( sum(val) );
             end

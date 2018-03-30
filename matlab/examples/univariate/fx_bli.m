@@ -9,4 +9,4 @@ bl_interpolant = BLI(fun, args{:});
 
 n_test_pts     = 1000;
 bounds         = args{2};
-compareIObjs(n_test_pts, bounds, fun, bl_interpolant);
+compareIObjs(n_test_pts, bounds, fun, bl_interpolant, 'BLI');
