@@ -11,4 +11,4 @@ bli_lb = 'BLI';
 
 n_tpts = 100;
 bounds = {[-1; 1]};
-compareIObjs(n_tpts, bounds, df_dx, bli_ip, bli_lb);
+compareIObjs(n_tpts, bounds, fx, bli_ip, bli_lb);
