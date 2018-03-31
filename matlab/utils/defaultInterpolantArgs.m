@@ -29,7 +29,7 @@ function args = defaultInterpolantArguments(n_dims)
     [args{2}{:}] = deal([-1; 1]);
 
     % Order of the interpolant
-    args{3} = 5 * ones(1, n_dims);
+    args{3} = 3 * ones(1, n_dims);
 
     % Category of sample points
     args{4} = 'uniform';

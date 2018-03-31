@@ -7,6 +7,10 @@ classdef SplineInterpolant < Interpolant
     end
 
     methods (Access = protected)
+        function [b, M] = adjustForBoundarySlope(Obj, h, b, M)
+            return;
+        end
+
         function setupCoefficients(Obj)
         % Protected Function
         % Given the sample points and associated values (Vi), fit the coefficients.
@@ -70,28 +74,6 @@ classdef SplineInterpolant < Interpolant
                     b = 6.0 * ( times(v_int_minus_1, h_inv(Obj.colons{:}, 1:n_plus_1-2)) + ...
                         times(v_int_plus_1, h_inv(Obj.colons{:}, 2:n_plus_1-1)) - ...
                         times(v_int, (h_inv(Obj.colons{:}, 1:n_plus_1-2) + h_inv(Obj.colons{:}, 2:n_plus_1-1))) );
-                        
-                    MIN_SLOPE_RIGHT = sign(Obj.f_vals(Obj.colons{:}, end)).*Obj.MIN_EXTRAP_SLOPE;
-                    MIN_SLOPE_LEFT = -sign(Obj.f_vals(Obj.colons{:}, 1)).*Obj.MIN_EXTRAP_SLOPE;
-                    
-                                        % Minimum value of the absolute slope that our
-                                        % interpolation should have at the boundary.
-                                        % This ensures that Newton lands you in the
-                                        % right area in a single step
-                    
-                    % Adjusting b so that the interpolation has the correct slope (and
-                    % the minimum value) on the right/left hand side
-
-                    b(:, end) = b(:, end) + 3*(Obj.f_vals(Obj.colons{:}, end)-Obj.f_vals(Obj.colons{:}, end-1))/h(1,end) ...
-                        - 3*MIN_SLOPE_RIGHT;  % Notice that this automatically gives us
-                                              % the correct sign for f'(x)
-
-                    M(n_plus_1-2,n_plus_1-2) = M(n_plus_1-2,n_plus_1-2) - h(1,end)/2;
-
-                    b(:,1) = b(:,1) + 3*(Obj.f_vals(Obj.colons{:}, 1)-Obj.f_vals(Obj.colons{:}, 2))/h(1,1) ...
-                        + 3*MIN_SLOPE_LEFT;
-
-                    M(1,1) = M(1,1) - h(1,1)/2;
 
                     % TODO: Can write my own code for LU decomposition of the tridiagonal
                     % matrix. It has a pretty nice structure (and is also diagonally
@@ -100,6 +82,9 @@ classdef SplineInterpolant < Interpolant
                     % We would like to ideally use a sparse solver here because of the nice structure, but MATLAB keeps
                     % runninf into trouble with multi-dimensional matrices. We will use the inverse operation instead
                     % z = mrdivide(b, M);    % Generate a matrix of coeffcients
+
+                    % Adjust the boundary slope if needed
+                    [b, M] = Obj.adjustForBoundarySlope(h, b, M);
 
                     M_inv = full( inv(M) );
                     z = zeros( size(b) );
