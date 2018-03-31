@@ -68,7 +68,7 @@ function success = plotDiffs(axis_labels, ref_pts_or_individual_refs, baseline, 
 
     for ci = 1 : n_comp_objs
         try
-            err_vals{ci}   = baseline - varargin{ci};
+            err_vals{ci}   = abs(baseline - varargin{ci});
             err_labels{ci} = strcat('\Delta{', varargin{ci+n_comp_objs}, '}');
         catch ME
             % This is now how this should be done but I am in a hurry
