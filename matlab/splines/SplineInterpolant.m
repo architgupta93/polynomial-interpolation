@@ -84,12 +84,14 @@ classdef SplineInterpolant < Interpolant
 
                     b(:, end) = b(:, end) + 3*(Obj.f_vals(Obj.colons{:}, end)-Obj.f_vals(Obj.colons{:}, end-1))/h(1,end) ...
                         - 3*MIN_SLOPE_RIGHT;  % Notice that this automatically gives us
-                                            % the correct sign for f'(x)
+                                              % the correct sign for f'(x)
 
                     M(n_plus_1-2,n_plus_1-2) = M(n_plus_1-2,n_plus_1-2) - h(1,end)/2;
 
                     b(:,1) = b(:,1) + 3*(Obj.f_vals(Obj.colons{:}, 1)-Obj.f_vals(Obj.colons{:}, 2))/h(1,1) ...
                         + 3*MIN_SLOPE_LEFT;
+
+                    M(1,1) = M(1,1) - h(1,1)/2;
 
                     % TODO: Can write my own code for LU decomposition of the tridiagonal
                     % matrix. It has a pretty nice structure (and is also diagonally

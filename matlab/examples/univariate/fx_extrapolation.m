@@ -1,5 +1,6 @@
 disp('Example illustrating the Extrapolation with Splines.');
-fun            = getTestFHandle(1, 1, 'smooth');
+% fun            = getTestFHandle(1, 1, 'smooth');
+fun            = @(x) sin(pi*x/2.0);
 
 disp('Generating arguments for the interpolant.');
 args           = defaultInterpolantArgs();

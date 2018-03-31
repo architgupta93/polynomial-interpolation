@@ -11,7 +11,7 @@ classdef PassiveSpline1D < SplineInterpolant
             % Based on the sample points and the associated function values,
             % adjust the value of the terminal slopes.
             ROI_length = Obj.i_pts.getPtAt(-1) - Obj.i_pts.getPtAt(1);
-            Obj.MIN_EXTRAP_SLOPE = 0.05*max(abs(Obj.f_vals(Obj.colons{:}, :)), [], 1+length(Obj.colons))/ROI_length;
+            Obj.MIN_EXTRAP_SLOPE = 0.1*max(abs(Obj.f_vals(Obj.colons{:}, :)), [], 1+length(Obj.colons))/ROI_length;
             Obj.setupCoefficients()
         end
     end
