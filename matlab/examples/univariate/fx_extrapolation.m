@@ -1,8 +1,11 @@
 disp('Example illustrating the Extrapolation with Splines.');
 % fun            = getTestFHandle(1, 1, 'smooth');
+
 fun            = @(x) sin(pi*x/sqrt(2));
 dfun_dx        = @(x) pi*cos(pi*x/sqrt(2))/sqrt(2);
+
 % fun            = @(x) exp(2*x);
+% dfun_dx        = @(x) 2*exp(2*x);
 
 disp('Generating arguments for the interpolant.');
 args           = defaultInterpolantArgs();

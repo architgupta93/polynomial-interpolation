@@ -7,8 +7,19 @@ classdef SplineInterpolant < Interpolant
     end
 
     methods (Access = protected)
-        function [b, M] = adjustForBoundarySlope(Obj, h, b, M)
-            return;
+        function [z, M] = adjustForBoundarySlope(Obj, h, b, M)
+            M_inv = full( inv(M) );
+            z = zeros( size(b) );
+            diff_dims = ndims(h) - ndims(Obj.f_vals);
+            for c_index = 1 : size(M, 2)
+                z(Obj.colons{:}, c_index) = sum( times(b, shiftdim(M_inv(:, c_index)', diff_dims)), ndims(b) );
+            end
+
+            s_z = size(z);
+            nd_z = length(s_z);
+            z = cat(nd_z, zeros([s_z(1:end-1) 1]), z, zeros([s_z(1:end-1) 1])); 
+                % Natural spline assumes that the second derivative at the two
+                % end points is 0, which has been put in here
         end
 
         function setupCoefficients(Obj)
@@ -84,20 +95,7 @@ classdef SplineInterpolant < Interpolant
                     % z = mrdivide(b, M);    % Generate a matrix of coeffcients
 
                     % Adjust the boundary slope if needed
-                    [b, M] = Obj.adjustForBoundarySlope(h, b, M);
-
-                    M_inv = full( inv(M) );
-                    z = zeros( size(b) );
-
-                    for c_index = 1 : size(M, 2)
-                        z(Obj.colons{:}, c_index) = sum( times(b, shiftdim(M_inv(:, c_index)', diff_dims)), ndims(b) );
-                    end
-
-                    s_z = size(z);
-                    nd_z = length(s_z);
-                    z = cat(nd_z, zeros([s_z(1:end-1) 1]), z, zeros([s_z(1:end-1) 1])); 
-                        % Natural spline assumes that the second derivative at the two
-                        % end points is 0, which has been put in here
+                    [z, M] = Obj.adjustForBoundarySlope(h, b, M);
 
                     % Time to compute the coefficients nxCi and nxDi (as vectors C, D);
                     C__ = times( Obj.f_vals(Obj.colons{:}, 1:n_plus_1-1), h_inv ) - ...
