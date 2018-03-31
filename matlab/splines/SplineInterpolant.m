@@ -3,7 +3,6 @@ classdef SplineInterpolant < Interpolant
 % This class provides class member called "coeffs" which is used for storing Spline interpolants in both the classes.
 % The class also provides a common interface for defining Save and Load methods for the class
     properties (GetAccess = public, SetAccess = protected)
-        ROI_length       = 0;
         MIN_EXTRAP_SLOPE = 0;
     end
 
@@ -71,7 +70,27 @@ classdef SplineInterpolant < Interpolant
                     b = 6.0 * ( times(v_int_minus_1, h_inv(Obj.colons{:}, 1:n_plus_1-2)) + ...
                         times(v_int_plus_1, h_inv(Obj.colons{:}, 2:n_plus_1-1)) - ...
                         times(v_int, (h_inv(Obj.colons{:}, 1:n_plus_1-2) + h_inv(Obj.colons{:}, 2:n_plus_1-1))) );
+                        
+                    MIN_SLOPE_RIGHT = sign(Obj.f_vals(Obj.colons{:}, end)).*Obj.MIN_EXTRAP_SLOPE;
+                    MIN_SLOPE_LEFT = -sign(Obj.f_vals(Obj.colons{:}, 1)).*Obj.MIN_EXTRAP_SLOPE;
                     
+                                        % Minimum value of the absolute slope that our
+                                        % interpolation should have at the boundary.
+                                        % This ensures that Newton lands you in the
+                                        % right area in a single step
+                    
+                    % Adjusting b so that the interpolation has the correct slope (and
+                    % the minimum value) on the right/left hand side
+
+                    b(:, end) = b(:, end) + 3*(Obj.f_vals(Obj.colons{:}, end)-Obj.f_vals(Obj.colons{:}, end-1))/h(1,end) ...
+                        - 3*MIN_SLOPE_RIGHT;  % Notice that this automatically gives us
+                                            % the correct sign for f'(x)
+
+                    M(n_plus_1-2,n_plus_1-2) = M(n_plus_1-2,n_plus_1-2) - h(1,end)/2;
+
+                    b(:,1) = b(:,1) + 3*(Obj.f_vals(Obj.colons{:}, 1)-Obj.f_vals(Obj.colons{:}, 2))/h(1,1) ...
+                        + 3*MIN_SLOPE_LEFT;
+
                     % TODO: Can write my own code for LU decomposition of the tridiagonal
                     % matrix. It has a pretty nice structure (and is also diagonally
                     % dominant, so no pivots are required for solving crout-LU (CHECK)
@@ -137,6 +156,54 @@ classdef SplineInterpolant < Interpolant
     end
 
     methods (Access = public)
+        function [val, der] = computeWithDer(Obj, x_in, ~)
+            [x_in, dx_out] = Obj.i_pts.rescaleShiftInput(x_in);
+            % We need to find the bins i: xq lies in (x_(i-1) - x_i)  
+            %[~, index] = histc(x_in, [-Inf; Obj.getPtAt(1); Obj.i_pts.getPts(1); Inf]); 
+            %if ( isa(Obj.i_pts, 'UniformPoints') )
+            %    % Works for uniformly distributed points
+            %    index = 1 + floor((x_in - Obj.i_pts.bounds(2,1))/Obj.i_pts.step_size(1));
+            %    index = min( max(1, index), Obj.i_pts.n_pts(1)+1 );
+            %else
+                index = findInSorted(x_in, [Inf; Obj.i_pts.pts{1}; -Inf]);
+            %end
+
+            % Move to local coordinates, i.e., calculate the distances (and their cubes)
+            % from the two end-points. Keep in mind that "index" is calculated by appending
+            % Inf and -Inf to the set of sample points. Substract 1 to get the index of the
+            % actual local coordinate
+
+            dl_1 = x_in - Obj.i_pts.pts{1}(max(index-1,1));
+            dl_2 = dl_1.*dl_1;
+            dl_3 = dl_1.*dl_2;
+            
+            % Calculate the cubic function and the derivatives
+            % In MATLAB, all singleton dimensions to the right are ignored, so
+            % in the expression below, the dimension corresponding to 'index'
+            % is ignored.
+            ext_dims = length(Obj.colons);
+            pj_vals  = shiftdim([dl_3, dl_2, dl_1, 1], 1-ext_dims);
+            val      = sum(pj_vals .* ...
+                       Obj.coeffs(Obj.colons{:},:,index), 1+ext_dims);
+
+            if (nargout > 1)
+                dpj_vals = shiftdim([3*dl_2, 2*dl_1, 1], 1-ext_dims);
+                der      = dx_out * sum(dpj_vals .* ...
+                           Obj.coeffs(Obj.colons{:},1:3,index), 1+ext_dims);
+            end
+        end
+
+        function der = secondDerivative(Obj, x_in)
+            der = 0; % TODO
+        end
+
+        function der = firstDerivativeAtPt(Obj, pt_index)
+            der = 0; % TODO
+        end
+
+        function der = secondDerivativeAtPt(Obj, pt_index)
+            der = 0; % TODO
+        end
         function Obj = SplineInterpolant(varargin)
         % function Obj = SplineInterpolant(f_vals, in_dims, bounds, order, i_type_or_x_vals)
             % HACK HACK HACK: We use PiecewiseBLI at the same level as

@@ -113,13 +113,26 @@ classdef InterpolationPoints < SaveLoad
         end 
 
         function [tpt, sub] = getPtAt(obj, pt, dim)
+        % Get a specific sample point in the set of sample points
+        % pt: The index of the point needed. This can be negative if the
+        %   index is provided relative to the last entry (Python style indexing)
+        % dim: Dimension from which the point should be selected.
             if ( nargin > 2 )
+                if (pt < 0)
+                    pt = obj.n_pts(dim) - pt;
+                end
                 tpt = obj.sample_pts{dim}(pt);
                 sub = {};
                 return;
             end
 
-            pt = int64(pt - 1);    % Special thanks to Matlab indexing
+            if (pt < 0)
+                % Have to take the product of n_pts in order to return a specific point.
+                pt = int64(prod(obj.n_pts) - pt);
+            else
+                pt = int64(pt - 1);    % Special thanks to Matlab indexing
+            end
+
             tpt = zeros(obj.n_in_dims, 1);
             sub = cell(obj.n_in_dims, 1);  % Subscript index
             for d_i = 1:obj.n_in_dims

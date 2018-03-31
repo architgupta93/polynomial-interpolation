@@ -23,6 +23,26 @@ function v_out = scaleData(v_in, scale, dim)
         dim = 1;
     end
 
+    % If v_in is a cell array, perform this operation only on the matrix along 'dim'.
+    % Since this removes the original functionality of DIM, for column
+    % vectors, dim will be set to 1, otherwise, dim=2 will be used whenever
+    % v_in is a cell array.
+    cell_to_mat_conversion = false;
+    if (iscell(v_in))
+        v_in_cell = v_in;
+        v_in      = v_in_cell{dim};
+        d_cell    = dim;
+
+        % Change DIM so that row/column vectors are handled properly
+        % Applicable only when v_in is a cell array.
+        if iscolumn(v_in)
+            dim = 1;
+        else
+            dim = 2;
+        end
+        cell_to_mat_conversion = true;
+    end
+
     if ( dim > length(size(v_in)) )
         error('Supplied DIM exceeds data dimensions');
     end
@@ -34,4 +54,10 @@ function v_out = scaleData(v_in, scale, dim)
     dim_array(dim) = n_elems_in_dim;
     c_data = v_in - repmat(d_mean, dim_array);
     v_out = (scale * c_data) + repmat(d_mean, dim_array);
+
+    if (cell_to_mat_conversion)
+        % Replace the scale dimension in the cell array.
+        v_in_cell{d_cell} = v_out;
+        v_out = v_in_cell;
+    end
 end

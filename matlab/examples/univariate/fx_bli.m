@@ -6,6 +6,8 @@ args           = defaultInterpolantArgs();
 
 disp('Instantiating BLI.')
 bl_interpolant = BLI(fun, args{:});
+
+disp('Instantiating Spline.')
 sp_interpolant = Spline1D(fun, args{:});
 
 n_test_pts     = 1000;
