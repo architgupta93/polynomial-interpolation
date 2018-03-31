@@ -132,9 +132,9 @@ classdef SplineInterpolant < Interpolant
 
                     % EXTRAPOLATION SLOPE (RHS -- OK, LHS -- (hack) NEGATIVE SLOPE)
                     Obj.coeffs(Obj.colons{:},3,1) =   D__(Obj.colons{:}, 1) - C__(Obj.colons{:}, 1) + ...
-                                                - 3.0 * zl(Obj.colons{:}, 1) * h(1);
+                                                - 3.0 * zl(Obj.colons{:}, 1) * h(1).^2;
                     Obj.coeffs(Obj.colons{:},3,n_plus_1+1) = D__(Obj.colons{:}, n_plus_1-1) - C__(Obj.colons{:}, n_plus_1-1) + ...
-                                                + 3.0 * zr(Obj.colons{:}, n_plus_1-1) * h(end);
+                                                + 3.0 * zr(Obj.colons{:}, n_plus_1-1) * h(end).^2;
                 end
             end
         end

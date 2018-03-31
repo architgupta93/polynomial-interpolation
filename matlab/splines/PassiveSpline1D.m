@@ -40,9 +40,9 @@ classdef PassiveSpline1D < SplineInterpolant
 
             s_z  = size(z);
             nd_z = length(s_z);
-            z = cat(nd_z, 3*(Obj.f_vals(Obj.colons{:}, 2)-Obj.f_vals(Obj.colons{:}, 1))/h(1,1)^2 - z1/2.0 - 3.0*MIN_SLOPE_LEFT, ...
+            z = cat(nd_z, 3*(Obj.f_vals(Obj.colons{:}, 2)-Obj.f_vals(Obj.colons{:}, 1))/h(1,1)^2 - z1/2.0 - 3.0*MIN_SLOPE_LEFT/h(1,1), ...
                 z, ...
-                3*(Obj.f_vals(Obj.colons{:}, n_plus_1-1)-Obj.f_vals(Obj.colons{:}, n_plus_1))/h(end,1)^2 - zn_minus_1/2.0 + 3.0*MIN_SLOPE_RIGHT); 
+                3*(Obj.f_vals(Obj.colons{:}, n_plus_1-1)-Obj.f_vals(Obj.colons{:}, n_plus_1))/h(end,1)^2 - zn_minus_1/2.0 + 3.0*MIN_SLOPE_RIGHT/h(end,1)); 
                 % Natural spline assumes that the second derivative at the two
                 % end points is 0, which has been put in here
         end
