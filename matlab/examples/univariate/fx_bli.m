@@ -1,5 +1,10 @@
 disp('Example illustrating the use of Splines and Barycentric-Lagrange Interpolant.');
-fun            = getTestFHandle(1, 1, 'smooth');
+% We create a vector function. It takes 1 input and produces 3 outputs. The
+% interpolant can handle this easily without any input from the user.
+fun            = getTestFHandle(1, 5, 'smooth');
+%                               ^  ^
+%                           Input  Output
+%                      Dimensions  Dimensions
 
 disp('Generating arguments for the interpolant.');
 args           = defaultInterpolantArgs();

@@ -77,8 +77,9 @@ function success = plotComparison(axis_labels, ref_pts_or_individual_refs, varar
         data_vals{ol} = squeeze(varargin{ol});
     end
 
-    is_1D_data = (g_dims(data_vals{1}) == 1);
+    % Get the number of data dimensions to be plotted as well as the number of plots required.
     n_in_dims    = length(ref_pts);
+    is_1D_data   = (n_in_dims == 1);
 
     % These values have to be sorted otherwise, we get a dimension mismatch in
     % plotting. Also, we do not want repeatitions, hence randperm
@@ -89,7 +90,17 @@ function success = plotComparison(axis_labels, ref_pts_or_individual_refs, varar
 
     out_dims = g_dims(data_vals{1}) - n_in_dims;
     out_cols = cell(1, out_dims);
-    [out_cols{:}] = deal(1);
+
+    % Pick a random dimension to be plotted.
+    % We already assume that the first out_dims dimensions correspond to the outputs
+    data_size = size(data_vals{1});
+    for o_dim = 1:out_dims
+        out_cols{o_dim} = randi([1 data_size(o_dim)]);
+    end
+
+    % Print the output dimension that will be plotted.
+    fprintf(2, 'Plotting Output dimension: ');
+    disp(out_cols{:});
 
     if (~is_1D_data)
 
