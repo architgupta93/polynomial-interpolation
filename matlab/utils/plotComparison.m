@@ -88,7 +88,7 @@ function success = plotComparison(axis_labels, ref_pts_or_individual_refs, varar
     in_cols      = cell(1, n_in_dims);
     [in_cols{:}] = deal(':');
 
-    out_dims = g_dims(data_vals{1}) - n_in_dims;
+    out_dims = ndims(data_vals{1}) - n_in_dims;
     out_cols = cell(1, out_dims);
 
     % Pick a random dimension to be plotted.
