@@ -73,6 +73,11 @@
             %else
                 i = findInSorted(x_in(1), [Inf; Obj.i_pts.pts{1}; -Inf]);
                 j = findInSorted(x_in(2), [Inf; Obj.i_pts.pts{2}; -Inf]);
+
+                % Deal with the situation when i, j is NaN?:w
+                if isnan(x_in)
+                    error('Query input NaN, aborting!');
+                end
             %end
             
             dil_1 = x_in(1) - Obj.i_pts.pts{1}(max(i-1,1));
