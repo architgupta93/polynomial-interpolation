@@ -1,5 +1,5 @@
 disp('Example illustrating the use of Multi-variate Spline Interpolant.');
-fun = getTestFHandle(2, 1, 'smooth');
+fun = getTestFHandle(2, 2, 'smooth');
 
 disp('Generating arguments for the interpolant.');
 args = defaultInterpolantArgs(2);

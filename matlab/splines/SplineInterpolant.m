@@ -10,7 +10,7 @@ classdef SplineInterpolant < Interpolant
         function [z, M] = adjustForBoundarySlope(Obj, h, b, M)
             M_inv = full( inv(M) );
             z = zeros( size(b) );
-            diff_dims = ndims(h) - ndims(Obj.f_vals);
+            diff_dims = ndims(M) - ndims(b);
             for c_index = 1 : size(M, 2)
                 z(Obj.colons{:}, c_index) = sum( times(b, shiftdim(M_inv(:, c_index)', diff_dims)), ndims(b) );
             end
@@ -45,14 +45,14 @@ classdef SplineInterpolant < Interpolant
                 % sparse matrix equation that gives us the coefficients of the spline
                 % interpolation 
 
-                h = diff(xi)';   % Get the deltas between the individual xi elements
+                h_scalar = diff(xi)';   % Get the deltas between the individual xi elements
                 % DIFF(X), for a vector X, is [X(2)-X(1)  X(3)-X(2) ... X(n)-X(n-1)].
-                if (~( isempty(find(h<=0,1)) || isempty(find(h>=0,1)) ))
+                if (~( isempty(find(h_scalar<=0,1)) || isempty(find(h_scalar>=0,1)) ))
                 %% Checking that h DOES NOT contain both negative and positive entries
                 %% the entries must be sorted (In increasing or decreasing order)
                     error('ERROR: Xi should be a vector of MONOTONIC entries\n');
                 else
-                    h_inv = 1./h;
+                    h_inv = 1./h_scalar;
                     % Construct a sparse tridiagonal matrix with the interval lengths.
                     % This matrix will be used to ontain the values of the second
                     % derivatives at the supplied points. Let's call it M
@@ -63,7 +63,7 @@ classdef SplineInterpolant < Interpolant
                     % Enforcing continuity of the second derivative at the boundary
                     % points gives us the valu
                     
-                    M =  spdiags([h(2:end)' 2*(h(1:end-1)+h(2:end))' h(1:end-1)'], ...
+                    M =  spdiags([h_scalar(2:end)' 2*(h_scalar(1:end-1)+h_scalar(2:end))' h_scalar(1:end-1)'], ...
                         -1:1, n_plus_1-2, n_plus_1-2);
 
                     % This is a very interesting way to create a triadiagonal matrix.
@@ -79,8 +79,8 @@ classdef SplineInterpolant < Interpolant
                     % Shifted versions of the function values at the internal points; 
                     % We will solve Mz = b
                     
-                    diff_dims = ndims(h) - ndims(Obj.f_vals);
-                    h = shiftdim(h, diff_dims);
+                    diff_dims = ndims(h_scalar) - ndims(Obj.f_vals);
+                    h = shiftdim(h_scalar, diff_dims);
                     h_inv = shiftdim(h_inv, diff_dims);
                     b = 6.0 * ( times(v_int_minus_1, h_inv(Obj.colons{:}, 1:n_plus_1-2)) + ...
                         times(v_int_plus_1, h_inv(Obj.colons{:}, 2:n_plus_1-1)) - ...
