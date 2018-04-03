@@ -1,5 +1,5 @@
-function [x_dct, T] = amateur__DCT2(x,mode)
-% function [x_dct, T] = amateur__DCT2(x,mode)
+function [x_dct, T] = amateur__DCT2(x,comp_mode)
+% function [x_dct, T] = amateur__DCT2(x,comp_mode)
 % Author: Archit Gupta (September 06, 2016)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   Implementation of DCT-II. DCT transform of the second kind.
@@ -11,7 +11,7 @@ function [x_dct, T] = amateur__DCT2(x,mode)
 %   INPUTS:
 %       x - A sequence of values for which DCT-2 has to be computed [Expect a
 %       column vector. A row vector will produce an ERROR]
-%       mode (optional) - This can be left empty if the regular DCT is to be
+%       comp_mode (optional) - This can be left empty if the regular DCT is to be
 %       computed. However, if we want to compute the DCT matrix by using the DFT
 %       Available options: 'MODE_EXTENDED', 'CHEB_SERIES'
 %
@@ -29,6 +29,10 @@ function [x_dct, T] = amateur__DCT2(x,mode)
 %       X(k) = sum_{n=0}^{N-1} x(n)*cos(pi*(n+0.5)*k)/N
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    if (nargin < 2)
+        comp_mode = 'DEFAULT';
+    end
 
     s_x = size(x);
     if ( length(s_x) > 2 )
@@ -54,10 +58,10 @@ function [x_dct, T] = amateur__DCT2(x,mode)
     % directly corresponds to a DFT of a sequence of length 4N where an even
     % extension at a halfway point is placed at the even point in the sequence.
 
-    T = getDCTMat(s_x(1), mode);
+    T = getDCTMat(s_x(1), comp_mode);
 
     if ( s_x(2) > 2 )
-        T_hat = getDCTMat(s_x(2), mode);
+        T_hat = getDCTMat(s_x(2), comp_mode);
         x_dct =  T * x * T_hat';
     else
         x_dct = T * x;
