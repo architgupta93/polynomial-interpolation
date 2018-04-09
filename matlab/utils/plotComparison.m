@@ -73,8 +73,7 @@ function success = plotComparison(axis_labels, ref_pts_or_individual_refs, varar
     data_vals   = cell(n_overlays, 1);
 
     for ol = 1:n_overlays
-        % Remove the unnecessary singleton dimensions
-        data_vals{ol} = squeeze(varargin{ol});
+        data_vals{ol} = varargin{ol};
     end
 
     % Get the number of data dimensions to be plotted as well as the number of plots required.
@@ -95,12 +94,16 @@ function success = plotComparison(axis_labels, ref_pts_or_individual_refs, varar
     % We already assume that the first out_dims dimensions correspond to the outputs
     data_size = size(data_vals{1});
     for o_dim = 1:out_dims
+        if data_size(o_dim) > 1
         out_cols{o_dim} = randi([1 data_size(o_dim)]);
+        else
+            out_cols{o_dim} = 1;
+        end
     end
 
     % Print the output dimension that will be plotted.
     fprintf(2, 'Plotting Output dimension: ');
-    disp(out_cols{:});
+    disp([out_cols{:}]);
 
     if (~is_1D_data)
 
@@ -150,7 +153,7 @@ function success = plotComparison(axis_labels, ref_pts_or_individual_refs, varar
         % Loop thorugh the data and plot
         % TODO: Maybe put a try catch block around this.
         for ol = 1:n_overlays
-            plot_fun(ref_pts{1}, data_vals{ol}(out_cols{:}, in_cols{:}), plot_args{:});
+            plot_fun(ref_pts{1}, squeeze(data_vals{ol}(out_cols{:}, in_cols{:})), plot_args{:});
         end
         xlabel(axis_labels{1});
         ylabel(axis_labels{2});
